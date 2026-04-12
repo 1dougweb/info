@@ -64,11 +64,7 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::put('users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.role');
 
     // Webhooks
-    Route::get('webhooks', [Admin\WebhookConfigController::class, 'index'])->name('webhooks.index');
-    Route::put('webhooks/{source}', [Admin\WebhookConfigController::class, 'update'])->name('webhooks.update');
-
-    // Custom Webhooks
-    Route::resource('custom-webhooks', \App\Http\Controllers\CustomWebhookController::class)->except(['create', 'edit']);
+    Route::resource('webhooks', \App\Http\Controllers\CustomWebhookController::class)->except(['create', 'edit']);
 
     // Automations
     Route::get('automations', [Admin\AutomationController::class, 'index'])->name('automations.index');

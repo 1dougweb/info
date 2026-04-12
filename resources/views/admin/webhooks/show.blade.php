@@ -1,15 +1,15 @@
 @extends('layouts.admin')
 @section('title', 'Mapear Webhook')
-@section('breadcrumb', 'Webhooks Customizados › Mapear')
+@section('breadcrumb', 'Webhooks › Mapear')
 
 @section('content')
 <div class="page-header">
     <div class="flex justify-between items-start">
         <div>
-            <h1 class="page-title"><i class="bi bi-diagram-3 me-2"></i> {{ $customWebhook->name }}</h1>
+            <h1 class="page-title"><i class="bi bi-link-45deg me-2"></i> {{ $customWebhook->name }}</h1>
             <p class="text-muted text-sm mt-2">Mapeie as variáveis recebidas para as variáveis internas da plataforma.</p>
         </div>
-        <a href="{{ route('admin.custom-webhooks.index') }}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left"></i> Voltar</a>
+        <a href="{{ route('admin.webhooks.index') }}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left"></i> Voltar</a>
     </div>
 </div>
 
@@ -59,7 +59,7 @@
             @if (!$customWebhook->last_payload)
                 <div class="alert alert-warning text-sm">Receba um payload primeiro para poder mapear as chaves.</div>
             @else
-                <form method="POST" action="{{ route('admin.custom-webhooks.update', $customWebhook) }}">
+                <form method="POST" action="{{ route('admin.webhooks.update', $customWebhook) }}">
                     @csrf @method('PUT')
                     
                     @php

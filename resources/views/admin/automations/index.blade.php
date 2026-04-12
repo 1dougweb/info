@@ -57,6 +57,44 @@
     </div>
 </div>
 
+{{-- Scheduled Tasks Section --}}
+@php
+    $scheduledTasks = \App\Models\ScheduledTask::with('automation')->where('status', 'pending')->latest()->limit(10)->get();
+@endphp
+
+@if ($scheduledTasks->isNotEmpty())
+<div class="card mb-8">
+    <div class="card-header">
+        <h1 class="card-title" style="font-size: 1rem;"><i class="bi bi-clock-history me-2"></i> Próximas Ações Agendadas (Cron)</h1>
+    </div>
+    <div class="table-wrap" style="border: none; border-radius: 0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Automação</th>
+                    <th>Execução em</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($scheduledTasks as $task)
+                <tr>
+                    <td>{{ $task->user_email }}</td>
+                    <td>{{ $task->automation->name ?? 'N/A' }}</td>
+                    <td><span class="text-primary font-semibold">{{ $task->execute_at->diffForHumans() }}</span></td>
+                    <td><span class="badge badge-yellow">Pendente</span></td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div class="card-body py-3 border-top border-soft">
+        <span class="text-xs text-muted">Essas tarefas serão disparadas automaticamente pelo <strong>Cron Job</strong> configurado nas <a href="{{ route('admin.settings.index') }}">Configurações</a>.</span>
+    </div>
+</div>
+@endif
+
 {{-- Create modal --}}
 {{-- Create modal --}}
 <div x-data="{ open: false, actionType: 'grant_access' }" @open-create-modal.window="open = true">
@@ -68,13 +106,13 @@
             </div>
             <form method="POST" action="{{ route('admin.automations.store') }}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body flex flex-col gap-6">
                     <div class="form-group">
                         <label class="form-label">Nome da automação *</label>
                         <input type="text" name="name" class="form-control" placeholder="Ex: Liberar acesso Hotmart" required>
                     </div>
 
-                    <div class="grid-2" style="gap: 16px;">
+                    <div class="grid-2" style="gap: 20px;">
                         <div class="form-group">
                             <label class="form-label">Trigger (Quando?) *</label>
                             <select name="trigger" class="form-control" required>
@@ -100,9 +138,11 @@
                             <label class="form-label">Fonte *</label>
                             <select name="source" class="form-control" required>
                                 <option value="any">Qualquer fonte</option>
-                                <option value="hotmart">Hotmart</option>
-                                <option value="cakto">Cakto</option>
-                                <option value="wikify">Wikify</option>
+                                <optgroup label="Webhooks">
+                                    @foreach($webhooks as $webhook)
+                                        <option value="custom_{{ $webhook->uuid }}">{{ $webhook->name }}</option>
+                                    @endforeach
+                                </optgroup>
                             </select>
                         </div>
 
@@ -112,7 +152,14 @@
                                 <option value="grant_access">Liberar Acesso</option>
                                 <option value="revoke_access">Revogar Acesso</option>
                                 <option value="send_email">Enviar E-mail</option>
+                                <option value="create_user">Criar Usuário</option>
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Atraso (Delay) <span class="text-faint">(segundos)</span></label>
+                            <input type="number" name="delay_seconds" value="0" min="0" class="form-control" placeholder="0 = Imediato">
+                            <span class="form-hint">Tempo de espera antes de executar esta ação.</span>
                         </div>
 
                         <div class="form-group">
@@ -132,24 +179,31 @@
                         <span class="form-hint">Se preenchido, a automação será disparada somente para este produto específico do checkout</span>
                     </div>
 
-                    <div x-show="actionType === 'send_email'" x-cloak class="mt-4 mb-4 p-4" style="background: var(--surface-2); border-radius: 8px; border: 1px solid var(--border-soft);">
-                        <h4 class="font-semibold mb-3"><i class="bi bi-envelope"></i> Configuração do E-mail</h4>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Assunto</label>
-                            <input type="text" name="action_config[subject]" class="form-control" placeholder="Ex: Seu acesso ao @{{product_name}}!">
+                    <div x-show="actionType === 'send_email'" x-cloak class="mt-2 p-4" style="background: var(--surface-2); border-radius: 12px; border: 1px solid var(--border-soft);">
+                        <h4 class="font-semibold mb-4 text-sm"><i class="bi bi-envelope-fill me-1 text-primary"></i> Configuração de E-mail</h4>
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label text-xs">Modelo de E-mail</label>
+                            <select name="action_config[template_id]" class="form-control">
+                                <option value="">-- Usar conteúdo personalizado abaixo --</option>
+                                @foreach($templates as $template)
+                                    <option value="{{ $template->id }}">{{ $template->getTriggerLabel() }} - {{ $template->subject }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label">Corpo</label>
-                            <textarea name="action_config[body]" class="form-control" rows="4" placeholder="Ex: Olá @{{buyer_name}}, acesso via @{{buyer_email}}"></textarea>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label text-xs">Assunto Personalizado (Opcional)</label>
+                            <input type="text" name="action_config[subject]" class="form-control" placeholder="Sobrepõe o assunto do template">
                         </div>
-                        <div class="text-xs text-muted" style="line-height: 1.5;">
-                            <strong>Variáveis disponíveis:</strong><br>
-                            <code>@{{buyer_name}}</code>, <code>@{{buyer_email}}</code>, <code>@{{product_name}}</code>, <code>@{{transaction_id}}</code>, <code>@{{amount}}</code><br>
-                            <em>(Em webhooks customizados, você também pode digitar qualquer chave recebida do payload original envolvendo com chaves duplas Ex: <code>@{{minha_chave}}</code>)</em>
+
+                        <div class="form-group">
+                            <label class="form-label text-xs">Corpo do E-mail (Opcional)</label>
+                            <textarea name="action_config[body]" class="form-control" rows="4" placeholder="Sobrepõe o corpo do template. Use @{{buyer_name}}, @{{pix_code}}, etc."></textarea>
                         </div>
                     </div>
 
-                    <label class="form-check">
+                    <label class="form-check pt-2">
                         <input type="checkbox" name="is_active" value="1" checked> Ativar imediatamente
                     </label>
                 </div>

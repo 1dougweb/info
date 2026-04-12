@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Automation;
 use App\Models\Product;
+use App\Models\CustomWebhook;
 use Illuminate\Http\Request;
 
 class AutomationController extends Controller
@@ -13,7 +14,10 @@ class AutomationController extends Controller
     {
         $automations = Automation::with('product')->latest()->get();
         $products    = Product::published()->get();
-        return view('admin.automations.index', compact('automations', 'products'));
+        $webhooks    = CustomWebhook::all();
+        $templates   = \App\Models\EmailTemplate::where('is_active', true)->get();
+        
+        return view('admin.automations.index', compact('automations', 'products', 'webhooks', 'templates'));
     }
 
     public function store(Request $request)
@@ -21,12 +25,14 @@ class AutomationController extends Controller
         $data = $request->validate([
             'name'              => 'required|string|max:255',
             'trigger'           => 'required|string',
-            'source'            => 'required|in:hotmart,cakto,wikify,any',
+            'source'            => 'required|string',
             'source_product_id' => 'nullable|string',
             'product_id'        => 'nullable|exists:products,id',
-            'action'            => 'required|in:grant_access,revoke_access,send_email',
+            'action'            => 'required|in:grant_access,revoke_access,send_email,create_user',
             'is_active'         => 'boolean',
+            'delay_seconds'     => 'nullable|integer|min:0',
             'action_config'     => 'nullable|array',
+            'conditions'        => 'nullable|array',
         ]);
 
         Automation::create($data + ['is_active' => $request->boolean('is_active', true)]);
@@ -39,12 +45,14 @@ class AutomationController extends Controller
         $data = $request->validate([
             'name'              => 'required|string|max:255',
             'trigger'           => 'required|string',
-            'source'            => 'required|in:hotmart,cakto,wikify,any',
+            'source'            => 'required|string',
             'source_product_id' => 'nullable|string',
             'product_id'        => 'nullable|exists:products,id',
-            'action'            => 'required|in:grant_access,revoke_access,send_email',
+            'action'            => 'required|in:grant_access,revoke_access,send_email,create_user',
             'is_active'         => 'boolean',
+            'delay_minutes'     => 'nullable|integer|min:0',
             'action_config'     => 'nullable|array',
+            'conditions'        => 'nullable|array',
         ]);
 
         $automation->update($data + ['is_active' => $request->boolean('is_active')]);

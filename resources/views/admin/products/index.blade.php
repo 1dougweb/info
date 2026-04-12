@@ -13,6 +13,7 @@
         <table>
             <thead>
                 <tr>
+                    <th style="width: 80px;">Imagem</th>
                     <th>Produto</th>
                     <th>Tipo</th>
                     <th>Preço</th>
@@ -24,6 +25,9 @@
             <tbody>
                 @forelse ($products as $product)
                 <tr>
+                    <td>
+                        <img src="{{ $product->thumbnail_url }}" style="width: 60px; height: 34px; object-fit: cover; border-radius: 4px; background: var(--surface-3);">
+                    </td>
                     <td>
                         <div class="font-semibold">{{ $product->title }}</div>
                         <div class="text-xs text-muted">{{ $product->slug }}</div>

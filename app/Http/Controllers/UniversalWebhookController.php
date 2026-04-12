@@ -10,10 +10,9 @@ use Illuminate\Support\Facades\Log;
 
 class UniversalWebhookController extends Controller
 {
-    public function cakto(Request $request) { return $this->receive($request, 'cakto'); }
-    public function hotmart(Request $request) { return $this->receive($request, 'hotmart'); }
-    public function wikify(Request $request) { return $this->receive($request, 'wikify'); }
-
+    /**
+     * Receives webhooks from custom dynamic sources.
+     */
     public function custom(Request $request, string $uuid)
     {
         $customHook = CustomWebhook::where('uuid', $uuid)->first();
@@ -25,46 +24,43 @@ class UniversalWebhookController extends Controller
         return $this->receive($request, 'custom_' . $uuid);
     }
 
+    /**
+     * Internal receipt logic with bulletproof response.
+     */
     public function receive(Request $request, string $source = 'generic')
     {
-        // Auto-detect source if generic
-        if ($source === 'generic') {
-            if ($request->hasHeader('X-Hotmart-Hottok')) $source = 'hotmart';
-            elseif ($request->hasHeader('X-Cakto-Token')) $source = 'cakto';
-            elseif ($request->hasHeader('X-Wikify-Signature')) $source = 'wikify';
-        }
-
         try {
             $payload = $request->all();
+            
+            // For custom hooks, we might already know the event type from the parser,
+            // but we store a basic one here and refine it during processing.
             $eventType = $payload['event'] ?? $payload['type'] ?? 'unknown';
 
-            // Attempt to create the event
+            // Create the event record
             $event = WebhookEvent::create([
-                'source'     => substr($source, 0, 255), // Force fit in case column length issues
+                'source'     => substr($source, 0, 255),
                 'event_type' => $eventType,
                 'payload'    => $payload,
                 'status'     => 'pending',
             ]);
 
+            // Dispatch asynchonous processing
             ProcessWebhookEvent::dispatch($event);
 
             return response()->json([
                 'status' => 'received',
-                'v' => 'v2_bulletproof',
                 'id' => $event->id
             ], 200);
 
         } catch (\Exception $e) {
-            // THE ESCUDO: Even if DB fails, we tell the sender (Cakto) it was OK.
-            // This prevents the user from being blocked by a 422/500 error in the panel.
-            Log::error("BULLETPROOF Webhook error: " . $e->getMessage());
+            // ALWAYS RETURN 200 to external senders to prevent retries or blocking.
+            Log::error("Webhook receipt error: " . $e->getMessage());
 
             return response()->json([
                 'status' => 'captured_offline',
                 'message' => 'Internal error occurred but source is acknowledged',
-                'v' => 'v2_bulletproof_catch',
                 'debug' => $e->getMessage()
-            ], 200); // ALWAYS RETURN 200
+            ], 200);
         }
     }
 }

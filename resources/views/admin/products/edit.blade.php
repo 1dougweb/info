@@ -66,7 +66,7 @@
                 <div class="form-group">
                     <label class="form-label">Nova Thumbnail</label>
                     @if ($product->thumbnail)
-                    <img src="{{ asset('storage/'.$product->thumbnail) }}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                    <img src="{{ $product->thumbnail_url }}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
                     @endif
                     <input type="file" name="thumbnail" class="form-control" accept="image/*">
                 </div>

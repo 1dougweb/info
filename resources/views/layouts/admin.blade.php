@@ -40,10 +40,7 @@
 
             <div class="sidebar-section-label">Integrações</div>
             <a href="{{ route('admin.webhooks.index') }}" class="sidebar-link {{ request()->routeIs('admin.webhooks*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-link-45deg"></i></span> Webhooks (Nativos)
-            </a>
-            <a href="{{ route('admin.custom-webhooks.index') }}" class="sidebar-link {{ request()->routeIs('admin.custom-webhooks*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-diagram-3"></i></span> Webhooks Custom
+                <span class="sidebar-icon"><i class="bi bi-link-45deg"></i></span> Webhooks
             </a>
             <a href="{{ route('admin.automations.index') }}" class="sidebar-link {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
                 <span class="sidebar-icon"><i class="bi bi-gear"></i></span> Automações

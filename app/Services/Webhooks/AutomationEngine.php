@@ -30,14 +30,30 @@ class AutomationEngine
 
         foreach ($automations as $automation) {
             try {
-                match($automation->action) {
-                    'grant_access'  => GrantAccessAction::execute($automation, $data),
-                    'revoke_access' => RevokeAccessAction::execute($automation, $data),
-                    'send_email'    => SendEmailAction::execute($automation, $data),
-                    default         => null,
-                };
+                // Check for custom conditions if any
+                if ($automation->conditions) {
+                    // Basic implementation of conditions check can be added here
+                    // e.g. if conditions['min_amount'] is set and $data['amount'] < min_amount, skip.
+                }
+
+                $delayInSeconds = $automation->delay_seconds ?? 0;
+
+                if ($delayInSeconds > 0) {
+                    \App\Models\ScheduledTask::create([
+                        'automation_id' => $automation->id,
+                        'user_email'    => $data['buyer_email'] ?? 'unknown',
+                        'payload'       => $data,
+                        'execute_at'    => now()->addSeconds($delayInSeconds),
+                        'status'        => 'pending',
+                    ]);
+                    Log::info("Automation #{$automation->id} scheduled for {$data['buyer_email']} at " . now()->addSeconds($delayInSeconds));
+                } else {
+                    \App\Jobs\ExecuteAutomationAction::dispatch($automation, $data);
+                    Log::info("Automation #{$automation->id} dispatched immediately for {$data['buyer_email']}.");
+                }
+
             } catch (\Exception $e) {
-                Log::error("Automation #{$automation->id} failed: " . $e->getMessage());
+                Log::error("Failed to dispatch Automation #{$automation->id}: " . $e->getMessage());
             }
         }
     }

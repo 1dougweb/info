@@ -8,12 +8,13 @@ class Automation extends Model
 {
     protected $fillable = [
         'name', 'trigger', 'source', 'source_product_id', 'product_id',
-        'action', 'action_config', 'is_active',
+        'action', 'action_config', 'is_active', 'delay_seconds', 'conditions',
     ];
 
     protected $casts = [
         'is_active'     => 'boolean',
         'action_config' => 'array',
+        'conditions'    => 'array',
     ];
 
     public function product()
@@ -33,6 +34,7 @@ class Automation extends Model
             'billet_printed'      => 'Boleto Gerado',
             'pix_generated'       => 'Pix Gerado',
             'waiting_payment'     => 'Aguardando Pagamento',
+            'cart_abandonment'    => 'Abandono de Carrinho',
             default               => ucfirst($this->trigger),
         };
     }
@@ -43,6 +45,7 @@ class Automation extends Model
             'grant_access'  => 'Liberar Acesso',
             'revoke_access' => 'Revogar Acesso',
             'send_email'    => 'Enviar E-mail',
+            'create_user'   => 'Criar Usuário',
             default         => ucfirst($this->action),
         };
     }

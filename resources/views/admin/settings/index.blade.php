@@ -72,7 +72,7 @@
 
     <div class="card" style="border: 1px solid var(--primary-soft); background: var(--surface-2);">
         <div class="card-body">
-            <h3 class="font-bold mb-3" style="color: var(--primary);"><i class="bi bi-info-circle"></i> Instruções</h3>
+            <h3 class="font-bold mb-3" style="color: var(--primary);"><i class="bi bi-info-circle"></i> Instruções SMTP</h3>
             <ul class="text-sm text-muted" style="padding-left: 20px; line-height: 1.8;">
                 <li><strong>Gmail:</strong> Use o host <code>smtp.gmail.com</code> e porta <code>587</code>. Você precisa gerar uma "Senha de App" nas configurações da sua conta Google.</li>
                 <li><strong>SendGrid/Mailtrap:</strong> Ótimas opções para garantir que seus e-mails não caiam no Spam.</li>
@@ -80,6 +80,25 @@
             </ul>
             <div class="alert alert-info mt-6 text-xs">
                 <i class="bi bi-lightbulb me-1"></i> As configurações salvas nesta tela substituirão os dados padrão do sistema.
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="border: 1px solid var(--primary-soft); background: var(--surface-2); margin-top: 24px;">
+        <div class="card-body">
+            <h3 class="font-bold mb-3" style="color: var(--primary);"><i class="bi bi-clock-history"></i> Orientação de Cron Jobs</h3>
+            <p class="text-xs text-muted mb-4">Para que as automações agendadas (Upsell, Abandono de Carrinho) funcionem, você deve configurar uma tarefa cron em seu servidor PHP.</p>
+            
+            <div class="form-group mb-4">
+                <label class="form-label text-xs">Comando do Cron (Rode a cada minuto):</label>
+                <div class="flex items-center gap-2">
+                    <code class="form-control text-xs" style="background: var(--bg); color: var(--green-400);">* * * * * cd {{ base_path() }} && php artisan schedule:run >> /dev/null 2>&1</code>
+                </div>
+                <span class="form-hint text-xs">Este comando verificará e executará todas as tarefas agendadas em segundo plano.</span>
+            </div>
+
+            <div class="alert alert-warning text-xs">
+                <i class="bi bi-exclamation-triangle me-1"></i> Se você não configurar o Cron Job, as automações com "atraso" ou agendamentos não serão disparadas.
             </div>
         </div>
     </div>

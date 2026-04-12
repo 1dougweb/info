@@ -18,7 +18,7 @@ class GrantAccessAction
             [
                 'name'     => $data['buyer_name'] ?? 'Membro',
                 'phone'    => $data['buyer_phone'] ?? null,
-                'password' => bcrypt(str()->random(16)),
+                'password' => bcrypt($data['password'] ?? str()->random(16)),
                 'role'     => 'member',
             ]
         );

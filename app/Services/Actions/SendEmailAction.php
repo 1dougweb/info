@@ -14,14 +14,22 @@ class SendEmailAction
         $config = $automation->action_config ?? [];
         $subject = $config['subject'] ?? '';
         $body = $config['body'] ?? '';
+        
+        $templateId = $config['template_id'] ?? null;
+        $template = null;
 
-        // Fallback to Global Template if automation content is empty
-        if (empty($subject) || empty($body)) {
+        if ($templateId) {
+            $template = \App\Models\EmailTemplate::find($templateId);
+        }
+
+        // Fallback to searching by trigger if no template ID is provided or found
+        if (!$template) {
             $template = \App\Models\EmailTemplate::where('trigger', $automation->trigger)->where('is_active', true)->first();
-            if ($template) {
-                $subject = empty($subject) ? $template->subject : $subject;
-                $body = empty($body) ? $template->body : $body;
-            }
+        }
+
+        if ($template) {
+            $subject = empty($subject) ? $template->subject : $subject;
+            $body = empty($body) ? $template->body : $body;
         }
 
         if (empty($subject) || empty($body)) {
