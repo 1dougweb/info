@@ -8,7 +8,31 @@
         <h1 class="page-title"><i class="bi bi-diagram-3 me-2"></i> Webhooks Customizados (Catch)</h1>
         <p class="text-muted text-sm mt-2">Crie URLs únicas para receber dados de qualquer plataforma externa.</p>
     </div>
-    <button x-data @click="$dispatch('open-create-modal')" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo Webhook</button>
+    <div class="flex gap-3">
+        <button x-data @click="$dispatch('open-create-modal')" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo Webhook</button>
+    </div>
+</div>
+
+<div class="card mb-8" style="border: 2px solid var(--primary-soft); background: var(--surface-2);">
+    <div class="card-body">
+        <div class="flex items-start gap-4">
+            <div style="font-size: 2rem; color: var(--primary);"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div class="flex-1">
+                <h3 class="font-bold mb-1" style="color: var(--primary);">URL Universal de Recebimento</h3>
+                <p class="text-sm text-muted mb-4">Use esta URL única para TODAS as suas plataformas. O sistema irá identificar automaticamente se é Hotmart, Cakto ou qualquer outra.</p>
+                <div class="flex gap-2" x-data="{ copied: false }">
+                    <input type="text" class="form-control" value="{{ url('/api/webhooks/v1/receive') }}" readonly id="universalUrl" style="background: var(--surface-1); font-family: monospace; font-size: 0.9rem;">
+                    <button class="btn btn-primary" 
+                            @click="navigator.clipboard.writeText(document.getElementById('universalUrl').value); copied = true; setTimeout(() => copied = false, 2000)"
+                            :class="copied ? 'btn-success' : 'btn-primary'"
+                            style="min-width: 120px;">
+                        <span x-show="!copied"><i class="bi bi-copy"></i> Copiar</span>
+                        <span x-show="copied" x-cloak><i class="bi bi-check2"></i> Copiado!</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @if (session('success'))

@@ -65,6 +65,25 @@ class WebhookController extends Controller
         return $this->storeAndProcess($request, 'custom_' . $uuid);
     }
 
+    public function receive(Request $request)
+    {
+        // 1. Detect source from headers or payload content
+        $source = 'generic';
+
+        if ($request->hasHeader('X-Hotmart-Hottok') || $request->hasHeader('X-Hotmart-Webhook-Token')) {
+            $source = 'hotmart';
+        } elseif ($request->hasHeader('X-Cakto-Token')) {
+            $source = 'cakto';
+        } elseif ($request->hasHeader('X-Wikify-Signature')) {
+            $source = 'wikify';
+        }
+
+        // 2. Log and process
+        Log::info("Universal Webhook received from: {$source}");
+        
+        return $this->storeAndProcess($request, $source);
+    }
+
     private function storeAndProcess(Request $request, string $source)
     {
         try {
