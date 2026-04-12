@@ -85,3 +85,9 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::get('email-templates', [Admin\EmailTemplateController::class, 'index'])->name('email-templates.index');
     Route::put('email-templates/{template}', [Admin\EmailTemplateController::class, 'update'])->name('email-templates.update');
 });
+
+// Temporary route to clear cache in production
+Route::get('/limpar-cache-servidor', function() {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return '<h1>Cache do Servidor Limpo com Sucesso!</h1><p>O Laravel na Hostinger agora está usando as configurações atualizadas e a fila Sync está ativada. Pode fechar esta tela e fazer um novo teste de Webhook!</p>';
+});
