@@ -57,22 +57,48 @@
     </div>
 </div>
 
-{{-- Scheduled Tasks Section --}}
+{{-- Cron / Scheduled Tasks Panel --}}
 @php
-    $scheduledTasks = \App\Models\ScheduledTask::with('automation')->where('status', 'pending')->latest()->limit(10)->get();
+    $scheduledTasks  = \App\Models\ScheduledTask::with('automation')->where('status', 'pending')->orderBy('execute_at')->limit(20)->get();
+    $totalPending    = \App\Models\ScheduledTask::where('status', 'pending')->count();
+    $totalProcessed  = \App\Models\ScheduledTask::where('status', 'processed')->count();
+    $totalFailed     = \App\Models\ScheduledTask::where('status', 'failed')->count();
 @endphp
 
-@if ($scheduledTasks->isNotEmpty())
 <div class="card mb-8">
-    <div class="card-header">
-        <h1 class="card-title" style="font-size: 1rem;"><i class="bi bi-clock-history me-2"></i> Próximas Ações Agendadas (Cron)</h1>
+    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h2 class="card-title" style="font-size: 1rem; margin:0;">
+                <i class="bi bi-clock-history me-2"></i> Tarefas Agendadas (Cron)
+            </h2>
+            <p class="text-xs text-muted mt-1" style="margin:0;">
+                Automações com delay aguardando execução via <code>php artisan automations:process</code>
+            </p>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <span class="badge badge-yellow" title="Pendentes"><i class="bi bi-hourglass-split me-1"></i> {{ $totalPending }} pendente(s)</span>
+            <span class="badge badge-green" title="Processadas"><i class="bi bi-check-circle me-1"></i> {{ $totalProcessed }} processada(s)</span>
+            @if ($totalFailed > 0)
+            <span class="badge badge-red" title="Com erro"><i class="bi bi-x-circle me-1"></i> {{ $totalFailed }} erro(s)</span>
+            @endif
+            <form method="POST" action="{{ route('admin.cron.run') }}">
+                @csrf
+                <button type="submit" class="btn btn-primary btn-sm" title="Executa php artisan automations:process agora">
+                    <i class="bi bi-play-fill me-1"></i> Executar Agora
+                </button>
+            </form>
+        </div>
     </div>
-    <div class="table-wrap" style="border: none; border-radius: 0;">
+
+    @if ($scheduledTasks->isNotEmpty())
+    <div class="table-wrap" style="border:none; border-radius:0;">
         <table>
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Usuário</th>
                     <th>Automação</th>
+                    <th>Ação</th>
                     <th>Execução em</th>
                     <th>Status</th>
                 </tr>
@@ -80,20 +106,44 @@
             <tbody>
                 @foreach ($scheduledTasks as $task)
                 <tr>
+                    <td class="text-xs text-muted">{{ $task->id }}</td>
                     <td>{{ $task->user_email }}</td>
-                    <td>{{ $task->automation->name ?? 'N/A' }}</td>
-                    <td><span class="text-primary font-semibold">{{ $task->execute_at->diffForHumans() }}</span></td>
-                    <td><span class="badge badge-yellow">Pendente</span></td>
+                    <td class="font-semibold">{{ $task->automation->name ?? '—' }}</td>
+                    <td><span class="badge badge-purple">{{ $task->automation?->getActionLabel() ?? '—' }}</span></td>
+                    <td>
+                        <span class="{{ $task->execute_at->isPast() ? 'text-danger' : 'text-primary' }} font-semibold">
+                            {{ $task->execute_at->diffForHumans() }}
+                        </span>
+                        <span class="text-xs text-muted d-block">{{ $task->execute_at->format('d/m H:i') }}</span>
+                    </td>
+                    <td>
+                        @if ($task->execute_at->isPast())
+                            <span class="badge badge-red"><i class="bi bi-exclamation-triangle me-1"></i>Vencida</span>
+                        @else
+                            <span class="badge badge-yellow">Pendente</span>
+                        @endif
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
-    <div class="card-body py-3 border-top border-soft">
-        <span class="text-xs text-muted">Essas tarefas serão disparadas automaticamente pelo <strong>Cron Job</strong> configurado nas <a href="{{ route('admin.settings.index') }}">Configurações</a>.</span>
+    @else
+    <div class="card-body text-center text-muted py-5">
+        <i class="bi bi-check2-circle" style="font-size:2rem; opacity:.4;"></i>
+        <p class="mt-2">Nenhuma tarefa agendada pendente.</p>
+    </div>
+    @endif
+
+    <div class="card-body py-3" style="border-top: 1px solid var(--border-soft); background: var(--surface-2); border-radius: 0 0 12px 12px;">
+        <p class="text-xs text-muted mb-2"><strong><i class="bi bi-info-circle me-1"></i>Configuração do Cron em Produção:</strong></p>
+        <code class="text-xs" style="display:block; background:var(--surface-3,#1a1a2e); color:#a8ff78; padding:8px 12px; border-radius:8px; font-family:monospace;">
+            * * * * * php {{ base_path() }}/artisan schedule:run >> /dev/null 2>&1
+        </code>
+        <p class="text-xs text-muted mt-2">Adicione esta linha ao crontab do servidor para executar tarefas agendadas automaticamente a cada minuto.</p>
     </div>
 </div>
-@endif
+
 
 {{-- Create modal --}}
 {{-- Create modal --}}

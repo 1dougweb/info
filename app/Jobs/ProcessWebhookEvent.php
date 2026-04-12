@@ -20,19 +20,34 @@ class ProcessWebhookEvent implements ShouldQueue
 
     public function handle(): void
     {
+        Log::info("ProcessWebhookEvent — starting for event #{$this->event->id} | source: {$this->event->source}");
+
         try {
-            // All webhooks are now processed via Custom Dynamic Mapping
             if (!str_starts_with($this->event->source, 'custom_')) {
-                $this->event->update(['status' => 'failed', 'error_message' => 'Native sources are deprecated']);
+                $this->event->update([
+                    'status'        => 'failed',
+                    'error_message' => 'Native sources are deprecated. Use a Custom Webhook.',
+                ]);
+                Log::warning("ProcessWebhookEvent — Event #{$this->event->id} rejected: non-custom source.");
                 return;
             }
 
-            $uuid = str_replace('custom_', '', $this->event->source);
+            $uuid       = str_replace('custom_', '', $this->event->source);
             $normalized = CustomParser::parse($this->event->payload, $uuid);
 
-            if (!$normalized) {
-                $this->event->update(['status' => 'failed', 'error_message' => 'Mapping failed or webhook not found']);
+            if (empty($normalized) || empty($normalized['buyer_email'])) {
+                $this->event->update([
+                    'status'        => 'failed',
+                    'error_message' => 'Mapping failed: no buyer_email resolved. Check webhook mapping configuration.',
+                ]);
+                Log::warning("ProcessWebhookEvent — Event #{$this->event->id} failed: mapping produced no buyer_email.");
                 return;
+            }
+
+            // Pre-generate a temporary password for new users so {{ password }} is available in emails
+            $email = $normalized['buyer_email'];
+            if (!\App\Models\User::where('email', $email)->exists()) {
+                $normalized['password'] = str()->random(10);
             }
 
             $this->event->update([
@@ -42,20 +57,24 @@ class ProcessWebhookEvent implements ShouldQueue
                 'processed_at'    => now(),
             ]);
 
-            // Add auto-password for new users to normalized data so all actions can use it (e.g. {{password}} in emails)
-            $email = $normalized['buyer_email'] ?? null;
-            if ($email && !\App\Models\User::where('email', $email)->exists()) {
-                $tempPassword = str()->random(10);
-                $normalized['password'] = $tempPassword;
-                $this->event->update(['normalized_data' => $normalized]);
-            }
+            Log::info("ProcessWebhookEvent — Event #{$this->event->id} normalized.", [
+                'event_type'  => $normalized['event'],
+                'buyer_email' => $normalized['buyer_email'],
+            ]);
 
-            // Dispatch automation rules
+            // Hand off to automation engine — each automation handles its own try/catch
             AutomationEngine::process($this->event->fresh());
 
-        } catch (\Exception $e) {
-            Log::error("ProcessWebhookEvent failed for event #{$this->event->id}: " . $e->getMessage());
-            $this->event->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            Log::error("ProcessWebhookEvent — Event #{$this->event->id} threw an unexpected exception: " . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            $this->event->update([
+                'status'        => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
         }
     }
 }

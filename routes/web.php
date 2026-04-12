@@ -73,6 +73,9 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::delete('automations/{automation}', [Admin\AutomationController::class, 'destroy'])->name('automations.destroy');
     Route::post('automations/{automation}/toggle', [Admin\AutomationController::class, 'toggle'])->name('automations.toggle');
 
+    // Manual cron trigger (dev/admin use only)
+    Route::post('cron/run', [Admin\AutomationController::class, 'runCron'])->name('cron.run');
+
     // Settings & SMTP
     Route::get('settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/smtp', [Admin\SettingsController::class, 'updateSmtp'])->name('settings.smtp.update');

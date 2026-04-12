@@ -7,6 +7,7 @@ use App\Models\Automation;
 use App\Models\Product;
 use App\Models\CustomWebhook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class AutomationController extends Controller
 {
@@ -50,7 +51,7 @@ class AutomationController extends Controller
             'product_id'        => 'nullable|exists:products,id',
             'action'            => 'required|in:grant_access,revoke_access,send_email,create_user',
             'is_active'         => 'boolean',
-            'delay_minutes'     => 'nullable|integer|min:0',
+            'delay_seconds'     => 'nullable|integer|min:0',
             'action_config'     => 'nullable|array',
             'conditions'        => 'nullable|array',
         ]);
@@ -70,5 +71,19 @@ class AutomationController extends Controller
     {
         $automation->update(['is_active' => !$automation->is_active]);
         return back()->with('success', 'Status alterado.');
+    }
+
+    public function runCron()
+    {
+        $pending = \App\Models\ScheduledTask::due()->count();
+
+        Artisan::call('automations:process');
+        $output = trim(Artisan::output());
+
+        $message = $pending > 0
+            ? "Cron executado: {$pending} tarefa(s) processada(s). {$output}"
+            : 'Cron executado: nenhuma tarefa vencida no momento.';
+
+        return back()->with('success', $message);
     }
 }

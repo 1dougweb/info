@@ -2,55 +2,68 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ExecuteAutomationAction;
+use App\Models\ScheduledTask;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ProcessScheduledTasks extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'automations:process';
-
     protected $description = 'Process due scheduled automation tasks';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
-        // Forçar o processamento ignorando o fuso horário (pega tudo que está pendente e já passou do tempo)
-        $tasks = \App\Models\ScheduledTask::where('status', 'pending')
-                    ->where('execute_at', '<=', now())
-                    ->get();
+        $tasks = ScheduledTask::due()->with('automation')->get();
 
         if ($tasks->isEmpty()) {
-            return;
+            $this->line('No due tasks to process.');
+            return self::SUCCESS;
         }
 
-        $this->info("Processing {$tasks->count()} due tasks...");
+        $this->info("Processing {$tasks->count()} due task(s)...");
+
+        $processed = 0;
+        $failed    = 0;
 
         foreach ($tasks as $task) {
+            // Guard: automation may have been deleted between scheduling and execution
+            if (!$task->automation) {
+                $task->update(['status' => 'cancelled', 'error_message' => 'Automation was deleted.']);
+                $this->warn("Task #{$task->id} cancelled — automation no longer exists.");
+                continue;
+            }
+
             try {
-                $this->line("Running task #{$task->id} for {$task->user_email}...");
+                $this->line("  → Task #{$task->id} | {$task->automation->name} | {$task->user_email}");
 
-                // Execute the action synchronously (important for shared hosting)
-                \App\Jobs\ExecuteAutomationAction::dispatchSync($task->automation, $task->payload);
+                ExecuteAutomationAction::dispatchSync($task->automation, $task->payload);
 
-                $task->update([
-                    'status' => 'processed',
+                $task->update(['status' => 'processed']);
+                $processed++;
+
+                Log::info("automations:process — Task #{$task->id} processed successfully.", [
+                    'automation_id' => $task->automation_id,
+                    'user_email'    => $task->user_email,
                 ]);
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $task->update([
-                    'status' => 'failed',
+                    'status'        => 'failed',
                     'error_message' => $e->getMessage(),
                 ]);
-                $this->error("Task #{$task->id} failed: " . $e->getMessage());
+                $failed++;
+
+                $this->error("  ✗ Task #{$task->id} failed: " . $e->getMessage());
+                Log::error("automations:process — Task #{$task->id} failed.", [
+                    'automation_id' => $task->automation_id,
+                    'user_email'    => $task->user_email,
+                    'error'         => $e->getMessage(),
+                ]);
             }
         }
 
-        $this->info("All due tasks processed.");
+        $this->info("Done: {$processed} processed, {$failed} failed.");
+        return self::SUCCESS;
     }
 }
