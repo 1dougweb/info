@@ -20,7 +20,10 @@ class ProcessScheduledTasks extends Command
      */
     public function handle()
     {
-        $tasks = \App\Models\ScheduledTask::due()->get();
+        // Forçar o processamento ignorando o fuso horário (pega tudo que está pendente e já passou do tempo)
+        $tasks = \App\Models\ScheduledTask::where('status', 'pending')
+                    ->where('execute_at', '<=', now())
+                    ->get();
 
         if ($tasks->isEmpty()) {
             return;
