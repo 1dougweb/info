@@ -92,5 +92,14 @@ Route::get('/limpar-cache-servidor', function() {
     return '<h1>Cache do Servidor Limpo com Sucesso!</h1><p>O Laravel na Hostinger agora está usando as configurações atualizadas e a fila Sync está ativada. Pode fechar esta tela e fazer um novo teste de Webhook!</p>';
 });
 
+// Temporary route to view raw webhook logs in production
+Route::get('/ver-logs-brutos', function() {
+    $path = storage_path('logs/raw_webhook.txt');
+    if (file_exists($path)) {
+        return response('<pre>' . file_get_contents($path) . '</pre>', 200, ['Content-Type' => 'text/html']);
+    }
+    return '<h1>Nenhum registro bruto encontrado.</h1><p>Isso prova que a Hostinger cortou antes do arquivo index.php do site carregar.</p>';
+});
+
 // WAF-Bypassing Webhook Route (removed from API constraint)
 Route::any('/webhooks/custom/{uuid}', [\App\Http\Controllers\CustomWebhookController::class, 'receivePayload'])->name('api.webhooks.custom');
