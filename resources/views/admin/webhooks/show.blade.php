@@ -115,4 +115,47 @@
     </div>
 </div>
 
+<div class="card mt-6">
+    <div class="card-header"><h3 class="font-semibold"><i class="bi bi-clock-history"></i> Diagnóstico: Últimos Recebimentos (Log)</h3></div>
+    <div class="card-body">
+        @php
+            $recentEvents = \App\Models\WebhookEvent::where('source', 'custom_' . $customWebhook->uuid)->latest()->limit(5)->get();
+        @endphp
+        
+        @if ($recentEvents->isEmpty())
+            <p class="text-xs text-muted text-center py-4">Nenhum evento registrado no banco de dados para este Webhook ainda.</p>
+        @else
+            <div class="table-wrap" style="border:none; border-radius:0;">
+                <table style="width: 100%; text-align: left; font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px; border-bottom: 1px solid var(--border-soft);">ID</th>
+                            <th style="padding: 8px; border-bottom: 1px solid var(--border-soft);">Horário</th>
+                            <th style="padding: 8px; border-bottom: 1px solid var(--border-soft);">Tipo</th>
+                            <th style="padding: 8px; border-bottom: 1px solid var(--border-soft);">Status</th>
+                            <th style="padding: 8px; border-bottom: 1px solid var(--border-soft);">Motivo do Erro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentEvents as $event)
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border-soft);">#{{ $event->id }}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border-soft);">{{ $event->created_at->format('d/m H:i:s') }}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border-soft);">{{ $event->event_type ?: 'vazio' }}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border-soft);">
+                                @if($event->status == 'processed') <span class="badge badge-green">Sucesso</span>
+                                @elseif($event->status == 'failed') <span class="badge badge-red">Falhou</span>
+                                @else <span class="badge badge-yellow">{{ $event->status }}</span>
+                                @endif
+                            </td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border-soft); color: #e74c3c; font-family: monospace;">{{ $event->error_message ?: '-' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+</div>
+
 @endsection
