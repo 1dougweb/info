@@ -101,5 +101,5 @@ Route::get('/ver-logs-brutos', function() {
     return '<h1>Nenhum registro bruto encontrado.</h1><p>Isso prova que a Hostinger cortou antes do arquivo index.php do site carregar.</p>';
 });
 
-// WAF-Bypassing Webhook Route (removed from API constraint)
+// Clean Webhook Route (removed from API constraint to prevent CORS/WAF issues, but keeping a professional clean URL)
 Route::any('/webhooks/custom/{uuid}', [\App\Http\Controllers\CustomWebhookController::class, 'receivePayload'])->name('api.webhooks.custom');
