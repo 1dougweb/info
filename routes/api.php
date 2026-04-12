@@ -9,6 +9,3 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/webhooks/test', fn() => response()->json(['status' => 'ok', 'time' => now()->toDateTimeString(), 'v' => 'v2_bulletproof_test']));
-
-// Using Route::any to ensure we catch the webhook even if the platform sends an unusual verb
-Route::any('/webhooks/custom/{uuid}', [CustomWebhookController::class, 'receivePayload'])->name('api.webhooks.custom');

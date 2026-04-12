@@ -91,3 +91,6 @@ Route::get('/limpar-cache-servidor', function() {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     return '<h1>Cache do Servidor Limpo com Sucesso!</h1><p>O Laravel na Hostinger agora está usando as configurações atualizadas e a fila Sync está ativada. Pode fechar esta tela e fazer um novo teste de Webhook!</p>';
 });
+
+// WAF-Bypassing Webhook Route (removed from API constraint)
+Route::any('/webhooks/custom/{uuid}', [\App\Http\Controllers\CustomWebhookController::class, 'receivePayload'])->name('api.webhooks.custom');
