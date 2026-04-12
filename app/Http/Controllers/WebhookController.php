@@ -102,7 +102,10 @@ class WebhookController extends Controller
             return response()->json(['status' => 'received', 'id' => $event->id]);
         } catch (\Exception $e) {
             Log::error("Webhook {$source} error: " . $e->getMessage());
-            return response()->json(['error' => 'Internal error'], 500);
+            return response()->json([
+                'error' => 'Internal error',
+                'debug' => $e->getMessage()
+            ], 500);
         }
     }
 }
