@@ -3,32 +3,63 @@
 namespace App\Services\Actions;
 
 use App\Models\Automation;
-use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Services\Mail\DynamicMailService;
 
 class SendEmailAction
 {
     public static function execute(Automation $automation, array $data): void
     {
         $config = $automation->action_config ?? [];
-        $subject = $config['subject'] ?? 'Notificação da Área de Membros';
+        $subject = $config['subject'] ?? '';
         $body = $config['body'] ?? '';
 
-        foreach ($data as $key => $value) {
-            if (is_scalar($value)) {
-                $subject = str_replace('{{' . $key . '}}', (string) $value, $subject);
-                $body = str_replace('{{' . $key . '}}', (string) $value, $body);
+        // Fallback to Global Template if automation content is empty
+        if (empty($subject) || empty($body)) {
+            $template = \App\Models\EmailTemplate::where('trigger', $automation->trigger)->where('is_active', true)->first();
+            if ($template) {
+                $subject = empty($subject) ? $template->subject : $subject;
+                $body = empty($body) ? $template->body : $body;
             }
         }
 
-        // Email sending is logged — integrate with Mail facade or external provider
-        Log::info('SendEmailAction triggered', [
-            'automation' => $automation->id,
-            'to'         => $data['buyer_email'] ?? 'unknown',
-            'subject'    => $subject,
-            'body'       => $body,
-        ]);
-        
-        // TODO: Implement actual email sending via Laravel Mail
+        if (empty($subject) || empty($body)) {
+            Log::warning("SendEmailAction: Skipping automation #{$automation->id} - No content or active template found.");
+            return;
+        }
+
+        // Replace tags
+        foreach ($data as $key => $value) {
+            if (is_scalar($value)) {
+                $tag = '{{' . $key . '}}';
+                $subject = str_replace($tag, (string) $value, $subject);
+                $body = str_replace($tag, (string) $value, $body);
+                
+                // Suporte para tags no estilo @{{tag}} como mencionado no plano
+                $tagArroba = '@{{' . $key . '}}';
+                $subject = str_replace($tagArroba, (string) $value, $subject);
+                $body = str_replace($tagArroba, (string) $value, $body);
+            }
+        }
+
+        try {
+            // Apply SMTP settings from database
+            DynamicMailService::applySettings();
+
+            $to = $data['buyer_email'] ?? null;
+            if (!$to) {
+                Log::warning("SendEmailAction: No recipient email found for automation #{$automation->id}");
+                return;
+            }
+
+            Mail::html($body, function ($message) use ($to, $subject) {
+                $message->to($to)->subject($subject);
+            });
+
+            Log::info("Automation #{$automation->id}: Email sent to {$to}");
+        } catch (\Exception $e) {
+            Log::error("SendEmailAction failed for automation #{$automation->id}: " . $e->getMessage());
+        }
     }
 }

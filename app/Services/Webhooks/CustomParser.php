@@ -37,10 +37,12 @@ class CustomParser
             'buyer_phone'    => '',
             'product_name'   => 'Custom Product',
             'product_id'     => (string) (getValueFromDottedKey($payload, $mapping['product_id'] ?? '') ?? ''),
-            'transaction_id' => (string) (getValueFromDottedKey($payload, $mapping['transaction_id'] ?? '') ?? ''),
             'amount'         => (float) (getValueFromDottedKey($payload, $mapping['amount'] ?? '') ?? 0),
             'currency'       => 'BRL',
             'status'         => self::normalizeStatus(strtolower((string) $rawEvent)),
+            'billet_url'     => (string) (getValueFromDottedKey($payload, $mapping['billet_url'] ?? '') ?? ''),
+            'pix_code'       => (string) (getValueFromDottedKey($payload, $mapping['pix_code'] ?? '') ?? ''),
+            'checkout_url'   => (string) (getValueFromDottedKey($payload, $mapping['checkout_url'] ?? '') ?? ''),
         ];
     }
 
@@ -50,6 +52,8 @@ class CustomParser
             str_contains($event, 'aprovad')      => 'purchase_approved',
             str_contains($event, 'approved')     => 'purchase_approved',
             str_contains($event, 'paid')         => 'purchase_approved',
+            str_contains($event, 'abandon')      => 'cart_abandonment',
+            str_contains($event, 'abandono')     => 'cart_abandonment',
             str_contains($event, 'cancel')       => 'purchase_cancelled',
             str_contains($event, 'refund')       => 'purchase_refunded',
             str_contains($event, 'reembols')     => 'purchase_refunded',

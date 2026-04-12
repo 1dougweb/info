@@ -76,4 +76,13 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::put('automations/{automation}', [Admin\AutomationController::class, 'update'])->name('automations.update');
     Route::delete('automations/{automation}', [Admin\AutomationController::class, 'destroy'])->name('automations.destroy');
     Route::post('automations/{automation}/toggle', [Admin\AutomationController::class, 'toggle'])->name('automations.toggle');
+
+    // Settings & SMTP
+    Route::get('settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings/smtp', [Admin\SettingsController::class, 'updateSmtp'])->name('settings.smtp.update');
+    Route::post('settings/smtp/test', [Admin\SettingsController::class, 'testSmtp'])->name('settings.smtp.test');
+
+    // Email Templates
+    Route::get('email-templates', [Admin\EmailTemplateController::class, 'index'])->name('email-templates.index');
+    Route::put('email-templates/{template}', [Admin\EmailTemplateController::class, 'update'])->name('email-templates.update');
 });

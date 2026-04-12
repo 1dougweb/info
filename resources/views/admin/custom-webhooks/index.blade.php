@@ -13,33 +13,6 @@
     </div>
 </div>
 
-<div class="card mb-8" style="border: 2px solid var(--primary-soft); background: var(--surface-2);">
-    <div class="card-body">
-        <div class="flex items-start gap-4">
-            <div style="font-size: 2rem; color: var(--primary);"><i class="bi bi-lightning-charge-fill"></i></div>
-            <div class="flex-1">
-                <h3 class="font-bold mb-1" style="color: var(--primary);">URL Universal de Recebimento</h3>
-                <p class="text-sm text-muted mb-4">Use esta URL única para TODAS as suas plataformas. O sistema irá identificar automaticamente se é Hotmart, Cakto ou qualquer outra.</p>
-                <div class="flex gap-2" x-data="{ copied: false }">
-                    <input type="text" class="form-control" value="{{ request()->getSchemeAndHttpHost() }}/api/webhooks/v1/receive" readonly id="universalUrl" style="background: var(--surface-1); font-family: monospace; font-size: 0.9rem;">
-                    <button class="btn btn-primary" 
-                            @click="navigator.clipboard.writeText(document.getElementById('universalUrl').value); copied = true; setTimeout(() => copied = false, 2000)"
-                            :class="copied ? 'btn-success' : 'btn-primary'"
-                            style="min-width: 120px;">
-                        <span x-show="!copied"><i class="bi bi-copy"></i> Copiar</span>
-                        <span x-show="copied" x-cloak><i class="bi bi-check2"></i> Copiado!</span>
-                    </button>
-                </div>
-                @if(str_contains(config('app.url'), 'localhost'))
-                <div class="alert alert-warning text-xs mt-3 py-2 px-3 flex items-center gap-2">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    Aviso: Seu APP_URL no arquivo .env ainda está como 'localhost'. Certifique-se de configurar o domínio correto para que os e-mails e links funcionem perfeitamente.
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
 
 @if (session('success'))
 <div class="alert alert-success mb-6"><i class="bi bi-check2"></i> {{ session('success') }}</div>

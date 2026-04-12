@@ -48,6 +48,14 @@
             <a href="{{ route('admin.automations.index') }}" class="sidebar-link {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
                 <span class="sidebar-icon"><i class="bi bi-gear"></i></span> Automações
             </a>
+
+            <div class="sidebar-section-label">Sistema</div>
+            <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
+                <span class="sidebar-icon"><i class="bi bi-gear-fill"></i></span> Configurações (SMTP)
+            </a>
+            <a href="{{ route('admin.email-templates.index') }}" class="sidebar-link {{ request()->routeIs('admin.email-templates*') ? 'active' : '' }}">
+                <span class="sidebar-icon"><i class="bi bi-layout-text-window-reverse"></i></span> Modelos de E-mail
+            </a>
         </nav>
 
         <div class="sidebar-footer">

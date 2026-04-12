@@ -78,14 +78,21 @@
                         <div class="form-group">
                             <label class="form-label">Trigger (Quando?) *</label>
                             <select name="trigger" class="form-control" required>
-                                <option value="purchase_approved">Compra Aprovada</option>
-                                <option value="billet_printed">Boleto Gerado</option>
-                                <option value="pix_generated">Pix Gerado</option>
-                                <option value="purchase_cancelled">Compra Cancelada</option>
-                                <option value="purchase_refused">Compra Recusada</option>
-                                <option value="purchase_refunded">Reembolso</option>
-                                <option value="chargeback">Chargeback</option>
-                                <option value="purchase_expired">Assinatura Expirada</option>
+                                <optgroup label="Vendas">
+                                    <option value="purchase_approved">Compra Aprovada</option>
+                                    <option value="purchase_refunded">Reembolso</option>
+                                    <option value="chargeback">Chargeback</option>
+                                </optgroup>
+                                <optgroup label="Pendências / Recuperação">
+                                    <option value="billet_printed">Boleto Gerado</option>
+                                    <option value="pix_generated">Pix Gerado</option>
+                                    <option value="cart_abandonment">Abandono de Carrinho</option>
+                                    <option value="purchase_refused">Compra Recusada</option>
+                                </optgroup>
+                                <optgroup label="Assinatura">
+                                    <option value="purchase_cancelled">Assinatura Cancelada</option>
+                                    <option value="purchase_expired">Assinatura Expirada</option>
+                                </optgroup>
                             </select>
                         </div>
 

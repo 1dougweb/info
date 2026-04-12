@@ -20,12 +20,13 @@ class AutomationController extends Controller
     {
         $data = $request->validate([
             'name'              => 'required|string|max:255',
-            'trigger'           => 'required|in:purchase_approved,purchase_cancelled,purchase_refunded,purchase_expired',
+            'trigger'           => 'required|string',
             'source'            => 'required|in:hotmart,cakto,wikify,any',
             'source_product_id' => 'nullable|string',
             'product_id'        => 'nullable|exists:products,id',
             'action'            => 'required|in:grant_access,revoke_access,send_email',
             'is_active'         => 'boolean',
+            'action_config'     => 'nullable|array',
         ]);
 
         Automation::create($data + ['is_active' => $request->boolean('is_active', true)]);
@@ -37,12 +38,13 @@ class AutomationController extends Controller
     {
         $data = $request->validate([
             'name'              => 'required|string|max:255',
-            'trigger'           => 'required|in:purchase_approved,purchase_cancelled,purchase_refunded,purchase_expired',
+            'trigger'           => 'required|string',
             'source'            => 'required|in:hotmart,cakto,wikify,any',
             'source_product_id' => 'nullable|string',
             'product_id'        => 'nullable|exists:products,id',
             'action'            => 'required|in:grant_access,revoke_access,send_email',
             'is_active'         => 'boolean',
+            'action_config'     => 'nullable|array',
         ]);
 
         $automation->update($data + ['is_active' => $request->boolean('is_active')]);

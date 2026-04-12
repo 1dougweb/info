@@ -88,8 +88,10 @@
                             'buyer_email' => 'E-mail do Comprador',
                             'buyer_name' => 'Nome do Comprador',
                             'product_id' => 'ID do Produto',
-                            'transaction_id' => 'ID da Transação',
-                            'amount' => 'Valor da Compra (se houver)'
+                            'amount' => 'Valor da Compra (se houver)',
+                            'billet_url' => 'URL do Boleto (se houver)',
+                            'pix_code' => 'Código PIX Copia e Cola',
+                            'checkout_url' => 'URL de Abandono (Link de Checkout)'
                         ] as $field => $label)
                         <div class="form-group">
                             <label class="form-label text-sm">{{ $label }}</label>
