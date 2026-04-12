@@ -48,8 +48,8 @@ class AutomationEngine
                     ]);
                     Log::info("Automation #{$automation->id} scheduled for {$data['buyer_email']} at " . now()->addSeconds($delayInSeconds));
                 } else {
-                    \App\Jobs\ExecuteAutomationAction::dispatch($automation, $data);
-                    Log::info("Automation #{$automation->id} dispatched immediately for {$data['buyer_email']}.");
+                    \App\Jobs\ExecuteAutomationAction::dispatchSync($automation, $data);
+                    Log::info("Automation #{$automation->id} dispatched immediately (Sync) for {$data['buyer_email']}.");
                 }
 
             } catch (\Exception $e) {

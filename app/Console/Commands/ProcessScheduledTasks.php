@@ -32,8 +32,8 @@ class ProcessScheduledTasks extends Command
             try {
                 $this->line("Running task #{$task->id} for {$task->user_email}...");
 
-                // Execute the action via the job (instantly, without delay now)
-                \App\Jobs\ExecuteAutomationAction::dispatch($task->automation, $task->payload);
+                // Execute the action synchronously (important for shared hosting)
+                \App\Jobs\ExecuteAutomationAction::dispatchSync($task->automation, $task->payload);
 
                 $task->update([
                     'status' => 'processed',
