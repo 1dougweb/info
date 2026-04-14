@@ -38,21 +38,63 @@
                 <span class="sidebar-icon"><i class="bi bi-people-fill"></i></span> Membros
             </a>
 
-            <div class="sidebar-section-label">Integrações</div>
-            <a href="{{ route('admin.webhooks.index') }}" class="sidebar-link {{ request()->routeIs('admin.webhooks*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-link-45deg"></i></span> Webhooks
-            </a>
-            <a href="{{ route('admin.automations.index') }}" class="sidebar-link {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-gear"></i></span> Automações
-            </a>
+            {{-- Dropdown: Integrações --}}
+            <div x-data="{ open: {{ request()->routeIs('admin.webhooks*') || request()->routeIs('admin.automations*') ? 'true' : 'false' }} }">
+                <button
+                    @click="open = !open"
+                    class="sidebar-link sidebar-dropdown-trigger {{ request()->routeIs('admin.webhooks*') || request()->routeIs('admin.automations*') ? 'active' : '' }}"
+                >
+                    <span class="sidebar-icon"><i class="bi bi-plug-fill"></i></span>
+                    Integrações
+                    <i class="bi sidebar-chevron" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </button>
+                <div
+                    x-show="open"
+                    x-transition:enter="sidebar-sub-enter"
+                    x-transition:enter-start="sidebar-sub-enter-start"
+                    x-transition:enter-end="sidebar-sub-enter-end"
+                    x-transition:leave="sidebar-sub-leave"
+                    x-transition:leave-start="sidebar-sub-leave-start"
+                    x-transition:leave-end="sidebar-sub-leave-end"
+                    class="sidebar-submenu"
+                >
+                    <a href="{{ route('admin.webhooks.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.webhooks*') ? 'active' : '' }}">
+                        <span class="sidebar-icon"><i class="bi bi-link-45deg"></i></span> Webhooks
+                    </a>
+                    <a href="{{ route('admin.automations.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
+                        <span class="sidebar-icon"><i class="bi bi-lightning-charge-fill"></i></span> Automações
+                    </a>
+                </div>
+            </div>
 
-            <div class="sidebar-section-label">Sistema</div>
-            <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-gear-fill"></i></span> Configurações (SMTP)
-            </a>
-            <a href="{{ route('admin.email-templates.index') }}" class="sidebar-link {{ request()->routeIs('admin.email-templates*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-layout-text-window-reverse"></i></span> Modelos de E-mail
-            </a>
+            {{-- Dropdown: Sistema --}}
+            <div x-data="{ open: {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.email-templates*') ? 'true' : 'false' }} }">
+                <button
+                    @click="open = !open"
+                    class="sidebar-link sidebar-dropdown-trigger {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.email-templates*') ? 'active' : '' }}"
+                >
+                    <span class="sidebar-icon"><i class="bi bi-sliders"></i></span>
+                    Sistema
+                    <i class="bi sidebar-chevron" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </button>
+                <div
+                    x-show="open"
+                    x-transition:enter="sidebar-sub-enter"
+                    x-transition:enter-start="sidebar-sub-enter-start"
+                    x-transition:enter-end="sidebar-sub-enter-end"
+                    x-transition:leave="sidebar-sub-leave"
+                    x-transition:leave-start="sidebar-sub-leave-start"
+                    x-transition:leave-end="sidebar-sub-leave-end"
+                    class="sidebar-submenu"
+                >
+                    <a href="{{ route('admin.settings.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
+                        <span class="sidebar-icon"><i class="bi bi-envelope"></i></span> Config. SMTP
+                    </a>
+                    <a href="{{ route('admin.email-templates.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.email-templates*') ? 'active' : '' }}">
+                        <span class="sidebar-icon"><i class="bi bi-layout-text-window-reverse"></i></span> Modelos de E-mail
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <div class="sidebar-footer">

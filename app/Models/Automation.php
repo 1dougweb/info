@@ -42,10 +42,9 @@ class Automation extends Model
     public function getActionLabel(): string
     {
         return match($this->action) {
-            'grant_access'  => 'Liberar Acesso',
+            'grant_access'  => 'Liberar Acesso (e Usuário)',
             'revoke_access' => 'Revogar Acesso',
             'send_email'    => 'Enviar E-mail',
-            'create_user'   => 'Criar Usuário',
             default         => ucfirst($this->action),
         };
     }

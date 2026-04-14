@@ -12,28 +12,60 @@
 <div class="alert alert-success mb-6"><i class="bi bi-check2"></i> {{ session('success') }}</div>
 @endif
 
-<div class="card mb-8">
+@foreach($products as $product)
+<div class="card mb-6" x-data="{ open: false }">
+    <div class="card-header bg-surface-2" @click="open = !open" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+        <div class="flex items-center gap-3">
+            @if ($product->thumbnail)
+                <img src="{{ $product->thumbnail_url }}" alt="{{ $product->title }}" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover;">
+            @else
+                <div style="width: 40px; height: 40px; border-radius: 6px; background: var(--surface-3); display: grid; place-items: center;">
+                    <i class="bi bi-box-seam text-muted"></i>
+                </div>
+            @endif
+            <div>
+                <h3 class="card-title m-0" style="font-size: 1.1rem;">{{ $product->title }}</h3>
+                <span class="text-xs text-muted">Automações vinculadas a este produto</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click.stop="$dispatch('open-create-modal', { productId: {{ $product->id }} })" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg"></i> Nova Automação neste Produto
+            </button>
+            <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" style="color: var(--text-3);"></i>
+        </div>
+    </div>
+
+    <div x-show="open" x-cloak>
+    @php
+        $productAutomations = $automations->where('product_id', $product->id);
+    @endphp
+
+    @if($productAutomations->isNotEmpty())
     <div class="table-wrap" style="border:none; border-radius:0;">
         <table>
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Trigger</th>
-                    <th>Fonte</th>
+                    <th>Nome / Trigger</th>
                     <th>Ação</th>
-                    <th>Produto</th>
                     <th>Status</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($automations as $auto)
+                @foreach ($productAutomations as $auto)
                 <tr>
-                    <td class="font-semibold">{{ $auto->name }}</td>
-                    <td><span class="badge badge-yellow">{{ $auto->getTriggerLabel() }}</span></td>
-                    <td><span class="badge badge-blue" style="text-transform: capitalize;">{{ $auto->source === 'any' ? 'Qualquer' : $auto->source }}</span></td>
+                    <td>
+                        <div class="font-semibold">{{ $auto->name }}</div>
+                        <div class="text-xs mt-1">
+                            <span class="badge badge-yellow">{{ $auto->getTriggerLabel() }}</span>
+                            <span class="badge badge-blue ms-1" style="text-transform: capitalize;">{{ $auto->source === 'any' ? 'Qualquer' : "Webhook: ".$auto->source }}</span>
+                        </div>
+                        @if($auto->source_product_id)
+                        <div class="text-xs text-muted mt-1"><i class="bi bi-tag"></i> ID Externo: {{ $auto->source_product_id }}</div>
+                        @endif
+                    </td>
                     <td><span class="badge badge-purple">{{ $auto->getActionLabel() }}</span></td>
-                    <td class="text-sm text-muted">{{ $auto->product->title ?? ($auto->source_product_id ?? '—') }}</td>
                     <td>
                         <form method="POST" action="{{ route('admin.automations.toggle', $auto) }}">
                             @csrf
@@ -49,13 +81,87 @@
                         </form>
                     </td>
                 </tr>
-                @empty
-                <tr><td colspan="7" class="text-center text-muted p-6">Nenhuma automação configurada</td></tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
+    @else
+    <div class="card-body text-center text-muted py-8">
+        <i class="bi bi-diagram-3 fs-2" style="opacity: 0.5;"></i>
+        <p class="mt-2 text-sm">Nenhuma automação configurada para este produto.<br>Clique no botão acima para adicionar.</p>
+    </div>
+    @endif
+    </div>
 </div>
+@endforeach
+
+@php
+    $globalAutomations = $automations->whereNull('product_id');
+@endphp
+
+@if($globalAutomations->isNotEmpty())
+<div class="card mb-8" x-data="{ open: false }">
+    <div class="card-header bg-surface-2 border-bottom" @click="open = !open" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+        <div class="flex items-center gap-2">
+            <i class="bi bi-globe2 text-muted fs-4"></i>
+            <div>
+                <h3 class="card-title m-0">Automações Globais / Sem Produto</h3>
+                <span class="text-xs text-muted">Automações disparadas independentemente do produto interno</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click.stop="$dispatch('open-create-modal', { productId: '' })" class="btn btn-sm btn-secondary">
+                <i class="bi bi-plus-lg"></i> Adicionar
+            </button>
+            <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" style="color: var(--text-3);"></i>
+        </div>
+    </div>
+    
+    <div x-show="open" x-cloak>
+    <div class="table-wrap" style="border:none; border-radius:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome / Trigger</th>
+                    <th>Ação</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($globalAutomations as $auto)
+                <tr>
+                    <td>
+                        <div class="font-semibold">{{ $auto->name }}</div>
+                        <div class="text-xs mt-1">
+                            <span class="badge badge-yellow">{{ $auto->getTriggerLabel() }}</span>
+                            <span class="badge badge-blue ms-1" style="text-transform: capitalize;">{{ $auto->source === 'any' ? 'Qualquer fonte' : "Webhook: ".$auto->source }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-purple">{{ $auto->getActionLabel() }}</span></td>
+                    <td>
+                        <form method="POST" action="{{ route('admin.automations.toggle', $auto) }}">
+                            @csrf
+                            <button class="badge {{ $auto->is_active ? 'badge-green' : 'badge-gray' }}" style="cursor: pointer; border: none;">
+                                {!! $auto->is_active ? '<i class="bi bi-circle-fill me-1"></i> Ativo' : '<i class="bi bi-circle me-1"></i> Inativo' !!}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ route('admin.automations.destroy', $auto) }}" onsubmit="return confirm('Remover automação?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+@endif
+
 
 {{-- Cron / Scheduled Tasks Panel --}}
 @php
@@ -147,7 +253,8 @@
 
 {{-- Create modal --}}
 {{-- Create modal --}}
-<div x-data="{ open: false, actionType: 'grant_access' }" @open-create-modal.window="open = true">
+<div x-data="{ open: false, actionType: 'grant_access', selectedProduct: '' }" 
+     @open-create-modal.window="open = true; selectedProduct = $event.detail.productId; actionType = 'grant_access';">
     <div class="modal-overlay" x-show="open" x-cloak @click.self="open=false">
         <div class="modal">
             <div class="modal-header">
@@ -199,10 +306,9 @@
                         <div class="form-group">
                             <label class="form-label">Ação (O quê?) *</label>
                             <select name="action" x-model="actionType" class="form-control" required>
-                                <option value="grant_access">Liberar Acesso</option>
+                                <option value="grant_access">Liberar Acesso (e Usuário)</option>
                                 <option value="revoke_access">Revogar Acesso</option>
                                 <option value="send_email">Enviar E-mail</option>
-                                <option value="create_user">Criar Usuário</option>
                             </select>
                         </div>
 
@@ -214,8 +320,8 @@
 
                         <div class="form-group">
                             <label class="form-label">Produto da plataforma</label>
-                            <select name="product_id" class="form-control">
-                                <option value="">— Nenhum —</option>
+                            <select name="product_id" x-model="selectedProduct" class="form-control">
+                                <option value="">— Nenhum / Global —</option>
                                 @foreach ($products as $product)
                                 <option value="{{ $product->id }}">{{ $product->title }}</option>
                                 @endforeach

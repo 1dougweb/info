@@ -84,24 +84,7 @@
         </div>
     </div>
 
-    <div class="card" style="border: 1px solid var(--primary-soft); background: var(--surface-2); margin-top: 24px;">
-        <div class="card-body">
-            <h3 class="font-bold mb-3" style="color: var(--primary);"><i class="bi bi-clock-history"></i> Orientação de Cron Jobs</h3>
-            <p class="text-xs text-muted mb-4">Para que as automações agendadas (Upsell, Abandono de Carrinho) funcionem, você deve configurar uma tarefa cron em seu servidor PHP.</p>
-            
-            <div class="form-group mb-4">
-                <label class="form-label text-xs">Comando do Cron (Rode a cada minuto):</label>
-                <div class="flex items-center gap-2">
-                    <code class="form-control text-xs" style="background: var(--bg); color: var(--green-400);">* * * * * cd {{ base_path() }} && php artisan schedule:run >> /dev/null 2>&1</code>
-                </div>
-                <span class="form-hint text-xs">Este comando verificará e executará todas as tarefas agendadas em segundo plano.</span>
-            </div>
-
-            <div class="alert alert-warning text-xs">
-                <i class="bi bi-exclamation-triangle me-1"></i> Se você não configurar o Cron Job, as automações com "atraso" ou agendamentos não serão disparadas.
-            </div>
-        </div>
-    </div>
+    
 </div>
 
 <script>
