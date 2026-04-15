@@ -34,7 +34,7 @@
         <div style="background: #000; padding: 24px; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;">
             <span style="font-size: 4rem; color: #fff;"><i class="bi bi-paperclip"></i></span>
             @if ($lesson->file_path)
-            <a href="{{ asset('storage/'.$lesson->file_path) }}" download class="btn btn-primary"><i class="bi bi-download"></i> Baixar arquivo</a>
+            <a href="{{ Storage::disk('public')->url($lesson->file_path) }}" download class="btn btn-primary"><i class="bi bi-download"></i> Baixar arquivo</a>
             @endif
         </div>
         @endif

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
@@ -49,7 +50,7 @@ class Product extends Model
     public function getThumbnailUrlAttribute(): string
     {
         return $this->thumbnail
-            ? asset('storage/' . $this->thumbnail)
+            ? Storage::disk('public')->url($this->thumbnail)
             : asset('images/product-placeholder.svg');
     }
 
