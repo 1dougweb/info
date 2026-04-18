@@ -67,6 +67,10 @@ class UserController extends Controller
         ]);
 
         try {
+            if (class_exists(\App\Services\Mail\DynamicMailService::class)) {
+                \App\Services\Mail\DynamicMailService::applySettings();
+            }
+
             \Illuminate\Support\Facades\Mail::to($user)->send(new \App\Mail\AdminPasswordResetMail($user, $plainPassword));
             return back()->with('success', 'Nova senha gerada e enviada para o e-mail do usuário!');
         } catch (\Exception $e) {
