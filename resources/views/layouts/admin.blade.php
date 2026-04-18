@@ -156,7 +156,7 @@
                         <a href="{{ route('member.profile') }}" class="dropdown-item">
                             <i class="bi bi-person"></i> Meu Perfil
                         </a>
-                        <a href="{{ route('admin.settings.branding') }}" class="dropdown-item">
+                        <a href="{{ route('admin.settings.branding.index') }}" class="dropdown-item">
                             <i class="bi bi-gear"></i> Configurações
                         </a>
                         <div class="dropdown-divider"></div>
