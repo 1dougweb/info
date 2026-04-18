@@ -60,6 +60,13 @@
                     <input type="file" name="thumbnail" class="form-control" accept="image/*">
                 </div>
 
+                {{-- Baixável / PDF --}}
+                <div class="form-group" id="file_upload_group" style="display: none; grid-column: 1/-1; background: var(--bg-2); padding: 16px; border-radius: var(--radius-md); border: 1px dashed var(--border);">
+                    <label class="form-label"><i class="bi bi-cloud-arrow-up me-1"></i> Arquivo do Produto (PDF, ZIP, etc)</label>
+                    <input type="file" name="file_path" class="form-control">
+                    <span class="form-hint">Obrigatório para produtos do tipo Download ou E-book. Tamanho máx: 50MB.</span>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Status *</label>
                     <select name="status" class="form-control">
@@ -95,4 +102,22 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.querySelector('select[name="type"]');
+        const fileGroup = document.getElementById('file_upload_group');
+
+        function toggleFileField() {
+            if (typeSelect.value === 'download' || typeSelect.value === 'ebook') {
+                fileGroup.style.display = 'block';
+            } else {
+                fileGroup.style.display = 'none';
+            }
+        }
+
+        typeSelect.addEventListener('change', toggleFileField);
+        toggleFileField(); // Run on load
+    });
+</script>
 @endsection

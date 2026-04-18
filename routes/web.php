@@ -25,6 +25,7 @@ Route::middleware('auth')->prefix('/')->group(function () {
     Route::get('/dashboard', [Member\DashboardController::class, 'index'])->name('member.dashboard');
     Route::get('/products', [Member\ProductController::class, 'index'])->name('member.products.index');
     Route::get('/products/{slug}', [Member\ProductController::class, 'show'])->name('member.products.show');
+    Route::get('/products/{slug}/download', [Member\DownloadController::class, 'download'])->name('member.products.download');
     Route::get('/learn/{product:slug}/{lesson}', [Member\PlayerController::class, 'show'])->name('member.player');
     Route::post('/learn/{lesson}/complete', [Member\PlayerController::class, 'complete'])->name('member.lesson.complete');
     Route::get('/profile', [Member\ProfileController::class, 'edit'])->name('member.profile');

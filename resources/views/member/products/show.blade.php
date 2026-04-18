@@ -55,22 +55,38 @@
         <div class="card" style="border-color: var(--primary);">
             <div class="card-body text-center">
                 <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 8px;"><i class="bi bi-check-circle-fill me-2"></i> Você tem acesso</div>
-                <p class="text-muted text-sm">Continue seu aprendizado abaixo.</p>
+                
+                @if ($totalLessons > 0)
+                    <p class="text-muted text-sm">Continue seu aprendizado abaixo.</p>
 
-                <div class="mt-6" style="text-align: left;">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-sm font-semibold">Progresso</span>
-                        <span class="text-sm font-semibold text-primary">{{ $percentage }}%</span>
+                    <div class="mt-6" style="text-align: left;">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-semibold">Progresso</span>
+                            <span class="text-sm font-semibold text-primary">{{ $percentage }}%</span>
+                        </div>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width: {{ $percentage }}%;"></div>
+                        </div>
+                        <div class="text-xs text-muted">{{ $completedLessons }} de {{ $totalLessons }} aulas concluídas</div>
                     </div>
-                    <div class="progress-wrap">
-                        <div class="progress-bar" style="width: {{ $percentage }}%;"></div>
-                    </div>
-                    <div class="text-xs text-muted">{{ $completedLessons }} de {{ $totalLessons }} aulas concluídas</div>
+                @else
+                    <p class="text-muted text-sm">Este produto está disponível para você.</p>
+                @endif
+
+                @if ($product->file_path)
+                <div class="mt-6 pt-6" style="border-top: 1px solid var(--border-soft);">
+                    <a href="{{ route('member.products.download', $product->slug) }}" class="btn btn-primary w-full btn-lg">
+                        <i class="bi bi-cloud-arrow-down-fill me-2"></i> 
+                        {{ $product->type === 'ebook' ? 'Baixar E-book' : 'Baixar Arquivo' }}
+                    </a>
+                    <p class="text-xs text-muted mt-2">Clique acima para fazer o download seguro.</p>
                 </div>
+                @endif
             </div>
         </div>
         @endif
 
+        @if ($modules->count() > 0)
         {{-- Modules --}}
         <div class="card">
             <div class="card-header">
@@ -116,6 +132,7 @@
             <div class="card-body text-muted">Conteúdo em breve</div>
             @endforelse
         </div>
+        @endif
     </div>
 </div>
 @endsection

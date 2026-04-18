@@ -30,6 +30,7 @@ class ProductController extends Controller
             'price'               => 'required|numeric|min:0',
             'status'              => 'required|in:draft,published,archived',
             'thumbnail'           => 'nullable|image|max:2048',
+            'file_path'           => 'nullable|file|max:51200', // 50MB
             'checkout_url'        => 'nullable|url',
             'checkout_hotmart_id' => 'nullable|string',
             'checkout_cakto_id'   => 'nullable|string',
@@ -37,7 +38,17 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            $filename = Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/thumbnails'), $filename);
+            $data['thumbnail'] = 'uploads/thumbnails/' . $filename;
+        }
+
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $filename = Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/products'), $filename);
+            $data['file_path'] = 'uploads/products/' . $filename;
         }
 
         Product::create($data);
@@ -60,6 +71,7 @@ class ProductController extends Controller
             'price'               => 'required|numeric|min:0',
             'status'              => 'required|in:draft,published,archived',
             'thumbnail'           => 'nullable|image|max:2048',
+            'file_path'           => 'nullable|file|max:51200', // 50MB
             'checkout_url'        => 'nullable|url',
             'checkout_hotmart_id' => 'nullable|string',
             'checkout_cakto_id'   => 'nullable|string',
@@ -67,7 +79,17 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            $filename = Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/thumbnails'), $filename);
+            $data['thumbnail'] = 'uploads/thumbnails/' . $filename;
+        }
+
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $filename = Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/products'), $filename);
+            $data['file_path'] = 'uploads/products/' . $filename;
         }
 
         $product->update($data);

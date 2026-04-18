@@ -12,7 +12,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'slug', 'description', 'content', 'type', 'thumbnail',
+        'title', 'slug', 'description', 'content', 'type', 'thumbnail', 'file_path',
         'price', 'status', 'checkout_url', 'checkout_hotmart_id', 'checkout_cakto_id', 'checkout_wikify_id',
     ];
 
@@ -50,13 +50,18 @@ class Product extends Model
     public function getThumbnailUrlAttribute(): string
     {
         return $this->thumbnail
-            ? Storage::disk('public')->url($this->thumbnail)
+            ? asset($this->thumbnail)
             : asset('images/product-placeholder.svg');
     }
 
     public function getTotalLessonsAttribute(): int
     {
         return $this->modules->sum(fn($m) => $m->lessons->count());
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        return $this->file_path ? asset($this->file_path) : null;
     }
 
     public function scopePublished($query)
