@@ -1,7 +1,7 @@
 document.addEventListener('alpine:init', () => {
     // Global Alpine stores
     Alpine.store('sidebar', {
-        open: window.innerWidth > 768,
+        open: window.innerWidth > 1024,
         toggle() { this.open = !this.open; },
         close()  { this.open = false; },
     });

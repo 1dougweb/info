@@ -14,8 +14,24 @@
 
 <div class="app-layout" x-data>
 
+    {{-- Backdrop (Mobile/Tablet) --}}
+    <div class="sidebar-backdrop" 
+         x-show="$store.sidebar.open && window.innerWidth <= 1024" 
+         x-transition:enter="fade-in"
+         x-transition:leave="fade-out"
+         x-cloak
+         @click="$store.sidebar.close()">
+    </div>
+
     {{-- Sidebar --}}
-    <aside class="sidebar" :class="$store.sidebar.open ? 'open' : ''">
+    <aside class="sidebar no-transition" 
+           x-data="{ ready: false }"
+           x-init="setTimeout(() => ready = true, 100)"
+           :class="{ 
+               'open': $store.sidebar.open, 
+               'collapsed': !$store.sidebar.open,
+               'no-transition': !ready
+           }">
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon"><i class="bi bi-lightning-fill"></i></div>
             <div>
@@ -24,74 +40,73 @@
             </div>
         </div>
 
-        <nav class="sidebar-nav">
-            <div class="sidebar-section-label">Principal</div>
-            <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-bar-chart-fill"></i></span> Dashboard
+        @php
+            $activeGroup = '';
+            if (request()->routeIs('admin.dashboard')) $activeGroup = 'inicio';
+            elseif (request()->routeIs('admin.products*') || request()->routeIs('admin.users*')) $activeGroup = 'gestao';
+            elseif (request()->routeIs('admin.webhooks*') || request()->routeIs('admin.automations*')) $activeGroup = 'integracoes';
+            elseif (request()->routeIs('admin.settings*') || request()->routeIs('admin.email-templates*')) $activeGroup = 'sistema';
+        @endphp
+
+        <nav class="sidebar-nav" x-data="{ activeDropdown: '{{ $activeGroup }}' }">
+            {{-- Group: Início --}}
+            <a href="{{ route('admin.dashboard') }}" 
+               class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+               @click="activeDropdown = ''">
+                <span class="sidebar-icon"><i class="bi bi-house-door-fill"></i></span>
+                Dashboard
             </a>
 
-            <div class="sidebar-section-label">Conteúdo</div>
-            <a href="{{ route('admin.products.index') }}" class="sidebar-link {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-box-seam"></i></span> Produtos
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
-                <span class="sidebar-icon"><i class="bi bi-people-fill"></i></span> Membros
-            </a>
-
-            {{-- Dropdown: Integrações --}}
-            <div x-data="{ open: {{ request()->routeIs('admin.webhooks*') || request()->routeIs('admin.automations*') ? 'true' : 'false' }} }">
-                <button
-                    @click="open = !open"
-                    class="sidebar-link sidebar-dropdown-trigger {{ request()->routeIs('admin.webhooks*') || request()->routeIs('admin.automations*') ? 'active' : '' }}"
-                >
-                    <span class="sidebar-icon"><i class="bi bi-plug-fill"></i></span>
-                    Integrações
-                    <i class="bi sidebar-chevron" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            {{-- Group: Gestão --}}
+            <div class="sidebar-group">
+                <button @click="activeDropdown = activeDropdown === 'gestao' ? '' : 'gestao'" 
+                        class="sidebar-link sidebar-dropdown-trigger {{ $activeGroup === 'gestao' ? 'active' : '' }}">
+                    <span class="sidebar-icon"><i class="bi bi-box-seam-fill"></i></span>
+                    Gestão
+                    <i class="bi sidebar-chevron" :class="activeDropdown === 'gestao' ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 </button>
-                <div
-                    x-show="open"
-                    x-transition:enter="sidebar-sub-enter"
-                    x-transition:enter-start="sidebar-sub-enter-start"
-                    x-transition:enter-end="sidebar-sub-enter-end"
-                    x-transition:leave="sidebar-sub-leave"
-                    x-transition:leave-start="sidebar-sub-leave-start"
-                    x-transition:leave-end="sidebar-sub-leave-end"
-                    class="sidebar-submenu"
-                >
-                    <a href="{{ route('admin.webhooks.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.webhooks*') ? 'active' : '' }}">
-                        <span class="sidebar-icon"><i class="bi bi-link-45deg"></i></span> Webhooks
+                <div x-show="activeDropdown === 'gestao'" x-cloak class="sidebar-submenu">
+                    <a href="{{ route('admin.products.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
+                        Produtos
                     </a>
-                    <a href="{{ route('admin.automations.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
-                        <span class="sidebar-icon"><i class="bi bi-lightning-charge-fill"></i></span> Automações
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                        Membros
                     </a>
                 </div>
             </div>
 
-            {{-- Dropdown: Sistema --}}
-            <div x-data="{ open: {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.email-templates*') ? 'true' : 'false' }} }">
-                <button
-                    @click="open = !open"
-                    class="sidebar-link sidebar-dropdown-trigger {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.email-templates*') ? 'active' : '' }}"
-                >
-                    <span class="sidebar-icon"><i class="bi bi-sliders"></i></span>
-                    Sistema
-                    <i class="bi sidebar-chevron" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            {{-- Group: Integrações --}}
+            <div class="sidebar-group">
+                <button @click="activeDropdown = activeDropdown === 'integracoes' ? '' : 'integracoes'" 
+                        class="sidebar-link sidebar-dropdown-trigger {{ $activeGroup === 'integracoes' ? 'active' : '' }}">
+                    <span class="sidebar-icon"><i class="bi bi-plug-fill"></i></span>
+                    Integrações
+                    <i class="bi sidebar-chevron" :class="activeDropdown === 'integracoes' ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 </button>
-                <div
-                    x-show="open"
-                    x-transition:enter="sidebar-sub-enter"
-                    x-transition:enter-start="sidebar-sub-enter-start"
-                    x-transition:enter-end="sidebar-sub-enter-end"
-                    x-transition:leave="sidebar-sub-leave"
-                    x-transition:leave-start="sidebar-sub-leave-start"
-                    x-transition:leave-end="sidebar-sub-leave-end"
-                    class="sidebar-submenu"
-                >
+                <div x-show="activeDropdown === 'integracoes'" x-cloak class="sidebar-submenu">
+                    <a href="{{ route('admin.webhooks.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.webhooks*') ? 'active' : '' }}">
+                        Webhooks
+                    </a>
+                    <a href="{{ route('admin.automations.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.automations*') ? 'active' : '' }}">
+                        Automações
+                    </a>
+                </div>
+            </div>
+
+            {{-- Group: Configurações --}}
+            <div class="sidebar-group">
+                <button @click="activeDropdown = activeDropdown === 'sistema' ? '' : 'sistema'" 
+                        class="sidebar-link sidebar-dropdown-trigger {{ $activeGroup === 'sistema' ? 'active' : '' }}">
+                    <span class="sidebar-icon"><i class="bi bi-gear-fill"></i></span>
+                    Configurações
+                    <i class="bi sidebar-chevron" :class="activeDropdown === 'sistema' ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </button>
+                <div x-show="activeDropdown === 'sistema'" x-cloak class="sidebar-submenu">
                     <a href="{{ route('admin.settings.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
-                        <span class="sidebar-icon"><i class="bi bi-envelope"></i></span> Config. SMTP
+                        SMTP
                     </a>
                     <a href="{{ route('admin.email-templates.index') }}" class="sidebar-link sidebar-sublink {{ request()->routeIs('admin.email-templates*') ? 'active' : '' }}">
-                        <span class="sidebar-icon"><i class="bi bi-layout-text-window-reverse"></i></span> Modelos de E-mail
+                        E-mails
                     </a>
                 </div>
             </div>

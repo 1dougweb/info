@@ -4,6 +4,7 @@ namespace App\Services\Webhooks;
 
 use App\Models\Automation;
 use App\Models\WebhookEvent;
+use App\Models\User;
 use App\Services\Actions\GrantAccessAction;
 use App\Services\Actions\RevokeAccessAction;
 use App\Services\Actions\SendEmailAction;
@@ -15,6 +16,12 @@ class AutomationEngine
     {
         $data = $event->normalized_data;
         if (!$data) return;
+
+        // If it's a new user, pre-generate a password so it can be used in GrantAccess and SendEmail actions
+        $email = $data['buyer_email'] ?? null;
+        if ($email && !User::where('email', $email)->exists()) {
+            $data['password'] = $data['password'] ?? str()->random(12);
+        }
 
         $automations = Automation::where('is_active', true)
             ->where('trigger', $data['event'])

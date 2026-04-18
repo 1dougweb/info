@@ -64,6 +64,7 @@
                             <code class="text-xs">@{{billet_url}}</code>
                             <code class="text-xs">@{{pix_code}}</code>
                             <code class="text-xs">@{{checkout_url}}</code>
+                            <code class="text-xs" title="Apenas para novos usuários">@{{password}}</code>
                         </div>
                     </div>
 

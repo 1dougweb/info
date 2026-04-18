@@ -137,6 +137,10 @@ h4 { font-size: 1.1rem; }
   transition: margin var(--t-normal);
 }
 
+@media (max-width: 1024px) {
+  .main-content { margin-left: 0; }
+}
+
 .page-container {
   padding: var(--space-8);
   flex: 1;
@@ -168,18 +172,35 @@ h4 { font-size: 1.1rem; }
   height: 100vh;
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 1500;
   transition: transform var(--t-normal);
   overflow-y: auto;
   transform: translateX(0);
 }
 
-.sidebar:not(.open) {
-  transform: translateX(-260px);
+/* Tablets (landscape/portrait) and under */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-260px); }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
 }
 
-.sidebar:not(.open) + .main-content {
-  margin-left: 0;
+/* Large Desktop - Default Open */
+@media (min-width: 1025px) {
+  .sidebar.collapsed { transform: translateX(-260px); }
+  .sidebar.collapsed + .main-content { margin-left: 0; }
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1400;
+}
+
+.no-transition {
+  transition: none !important;
 }
 
 .sidebar-brand {
@@ -230,11 +251,12 @@ h4 { font-size: 1.1rem; }
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-6);
+  padding: 10px var(--space-6);
   color: var(--text-2);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 0;
+  border-radius: 8px;
+  margin: 2px var(--space-3);
   transition: all var(--t-fast);
   position: relative;
 }
@@ -244,16 +266,10 @@ h4 { font-size: 1.1rem; }
 }
 .sidebar-link.active {
   color: var(--primary);
-  background: rgba(34,197,94,0.08);
-  border-right: 3px solid var(--primary);
+  background: rgba(34,197,94,0.06);
 }
-.sidebar-link.active::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--primary);
-  border-radius: 0 2px 2px 0;
+.sidebar-link.active .sidebar-icon {
+  color: var(--primary);
 }
 
 .sidebar-icon {
@@ -265,7 +281,7 @@ h4 { font-size: 1.1rem; }
 
 /* ── Sidebar Dropdown ── */
 .sidebar-dropdown-trigger {
-  width: 100%;
+  width: calc(100% - (var(--space-3) * 2));
   background: none;
   border: none;
   cursor: pointer;
@@ -274,20 +290,25 @@ h4 { font-size: 1.1rem; }
 }
 
 .sidebar-chevron {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-3);
   flex-shrink: 0;
-  transition: transform var(--t-fast);
+  transition: transform var(--t-normal);
   margin-left: auto;
 }
 
 .sidebar-submenu {
   overflow: hidden;
+  position: relative;
+  margin-left: 28px;
+  border-left: 1px solid var(--border-soft);
+  margin-bottom: 8px;
 }
 
 .sidebar-sublink {
-  padding-left: calc(var(--space-6) + 22px);
-  font-size: 0.85rem;
+  padding: 8px 16px;
+  margin: 1px 8px;
+  font-size: 0.825rem;
   color: var(--text-3);
 }
 
@@ -298,8 +319,8 @@ h4 { font-size: 1.1rem; }
 
 .sidebar-sublink.active {
   color: var(--primary);
-  background: rgba(34,197,94,0.06);
-  border-right: 3px solid var(--primary);
+  background: transparent;
+  font-weight: 600;
 }
 
 .sidebar-footer {
@@ -1125,8 +1146,14 @@ tbody tr:hover td { background: var(--surface-2); color: var(--text-1); }
 
 .fade-in { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.fade-out { animation: fadeOut 0.3s ease; }
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 /* Scrollbar */
@@ -1145,19 +1172,7 @@ tbody tr:hover td { background: var(--surface-2); color: var(--text-1); }
 }
 
 @media (max-width: 768px) {
-  :root { --sidebar-w: 0px; }
-
-  .sidebar {
-    transform: translateX(-260px);
-  }
-  .sidebar.open {
-    transform: translateX(0);
-    width: 260px;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .main-content { margin-left: 0; }
-
+  /* Existing mobile rules refined above */
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .player-layout { flex-direction: column; }
   .player-sidebar { width: 100%; position: static; max-height: none; }
