@@ -93,6 +93,24 @@
                 </div>
             </form>
         </div>
+
+        {{-- Security --}}
+        <div class="card" style="border-color: rgba(239, 68, 68, 0.2);">
+            <div class="card-header" style="background: rgba(239, 68, 68, 0.05);">
+                <h3 class="card-title text-error"><i class="bi bi-shield-lock-fill me-2"></i> Segurança</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" onsubmit="return confirm('Tem certeza? Isso irá invalidar a senha atual do usuário e enviar uma recém-criada para seu e-mail imediatamente.')">
+                    @csrf
+                    <button type="submit" class="btn btn-block" style="background: var(--surface-3); color: var(--text-2); border: 1px solid var(--border-soft);">
+                        <i class="bi bi-key-fill"></i> Gerar e Enviar Nova Senha
+                    </button>
+                    <p class="text-xs text-muted mt-3 mb-0 text-center">
+                        Uma senha de 8 caracteres será gerada e enviada via e-mail.
+                    </p>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

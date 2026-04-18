@@ -58,4 +58,19 @@ class UserController extends Controller
         $user->update($data);
         return back()->with('success', 'Função atualizada!');
     }
+
+    public function generatePassword(User $user)
+    {
+        $plainPassword = \Illuminate\Support\Str::random(8);
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($plainPassword)
+        ]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($user)->send(new \App\Mail\AdminPasswordResetMail($user, $plainPassword));
+            return back()->with('success', 'Nova senha gerada e enviada para o e-mail do usuário!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Senha gerada com sucesso, mas houve um erro ao enviar o e-mail: ' . $e->getMessage());
+        }
+    }
 }

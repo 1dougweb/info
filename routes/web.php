@@ -72,6 +72,7 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::post('users/{user}/grant', [Admin\UserController::class, 'grantAccess'])->name('users.grant');
     Route::post('users/{user}/revoke', [Admin\UserController::class, 'revokeAccess'])->name('users.revoke');
     Route::put('users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.role');
+    Route::post('users/{user}/reset-password', [Admin\UserController::class, 'generatePassword'])->name('users.reset-password');
 
     // Webhooks
     Route::resource('webhooks', \App\Http\Controllers\CustomWebhookController::class)->except(['create', 'edit']);

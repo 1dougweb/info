@@ -11,13 +11,14 @@ class EmailTemplate extends Model
     public function getTriggerLabel(): string
     {
         $labels = [
-            'purchase_approved' => 'Compra Aprovada',
-            'billet_printed'    => 'Boleto Gerado',
-            'pix_generated'     => 'Pix Gerado',
-            'cart_abandonment'  => 'Abandono de Carrinho',
-            'purchase_refused'  => 'Compra Recusada',
-            'purchase_refunded' => 'Reembolso',
-            'purchase_cancelled'=> 'Assinatura Cancelada',
+            'purchase_approved'    => 'Compra Aprovada',
+            'billet_printed'       => 'Boleto Gerado',
+            'pix_generated'        => 'Pix Gerado',
+            'cart_abandonment'     => 'Abandono de Carrinho',
+            'purchase_refused'     => 'Compra Recusada',
+            'purchase_refunded'    => 'Reembolso',
+            'purchase_cancelled'   => 'Assinatura Cancelada',
+            'admin_password_reset' => 'Nova Senha Gerada (Painel)',
         ];
 
         return $labels[$this->trigger] ?? $this->trigger;
