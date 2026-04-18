@@ -18,6 +18,13 @@ class DynamicMailService
         Config::set('mail.mailers.smtp.username', Setting::get('smtp_user'));
         Config::set('mail.mailers.smtp.password', Setting::get('smtp_pass'));
         
+        // Force the default mailer to smtp to override .env log/null settings
+        Config::set('mail.default', 'smtp');
+        
+        // Purge mailers to force re-resolution with new config
+        \Illuminate\Support\Facades\Mail::purge('smtp');
+        \Illuminate\Support\Facades\Mail::purge();
+        
         $fromEmail = Setting::get('mail_from_address', config('mail.from.address'));
         $fromName = Setting::get('mail_from_name', config('mail.from.name'));
 
