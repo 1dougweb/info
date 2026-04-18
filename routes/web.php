@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Member;
 use App\Http\Middleware\AdminMiddleware;
@@ -16,6 +17,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/register', [RegisterController::class, 'showRegister'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+
+    // Password Recovery
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetCode'])->name('password.email');
+    Route::get('/verify-code', [ForgotPasswordController::class, 'showVerifyForm'])->name('password.verify.form');
+    Route::post('/verify-code', [ForgotPasswordController::class, 'verifyCode'])->name('password.verify.post');
+    Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset.form');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
@@ -81,6 +90,10 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::get('settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/smtp', [Admin\SettingsController::class, 'updateSmtp'])->name('settings.smtp.update');
     Route::post('settings/smtp/test', [Admin\SettingsController::class, 'testSmtp'])->name('settings.smtp.test');
+    
+    // Branding / Visual Identity
+    Route::get('branding', [Admin\SettingsController::class, 'branding'])->name('settings.branding.index');
+    Route::post('branding/update', [Admin\SettingsController::class, 'updateBranding'])->name('settings.branding.update');
 
     // Email Templates
     Route::get('email-templates', [Admin\EmailTemplateController::class, 'index'])->name('email-templates.index');

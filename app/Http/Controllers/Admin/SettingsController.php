@@ -39,6 +39,51 @@ class SettingsController extends Controller
         return back()->with('success', 'Configurações de SMTP atualizadas com sucesso!');
     }
 
+    public function branding()
+    {
+        return view('admin.settings.branding');
+    }
+
+    public function updateBranding(Request $request)
+    {
+        $request->validate([
+            'branding_logo' => 'nullable|image|max:1024',
+            'branding_favicon' => 'nullable|image|max:512',
+            'branding_preset' => 'required|in:default,green,blue,red,purple,custom',
+            'branding_custom_color' => 'nullable|string|size:7',
+            'branding_bg_color' => 'nullable|string|size:7',
+            'branding_btn_text_color' => 'nullable|string|size:7',
+            'branding_badge_color' => 'nullable|string|size:7',
+        ]);
+
+        if ($request->hasFile('branding_logo')) {
+            $file = $request->file('branding_logo');
+            $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/branding'), $filename);
+            Setting::set('branding_logo', 'uploads/branding/' . $filename);
+        }
+
+        if ($request->hasFile('branding_favicon')) {
+            $file = $request->file('branding_favicon');
+            $filename = 'favicon_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/branding'), $filename);
+            Setting::set('branding_favicon', 'uploads/branding/' . $filename);
+        }
+
+        if ($request->branding_preset === 'custom' && $request->branding_custom_color) {
+            Setting::set('branding_custom_color', $request->branding_custom_color);
+        }
+
+        // Granular Colors
+        Setting::set('branding_bg_color', $request->branding_bg_color);
+        Setting::set('branding_btn_text_color', $request->branding_btn_text_color);
+        Setting::set('branding_badge_color', $request->branding_badge_color);
+
+        Setting::set('branding_preset', $request->branding_preset);
+
+        return back()->with('success', 'Identidade visual atualizada!');
+    }
+
     public function testSmtp(Request $request)
     {
         try {

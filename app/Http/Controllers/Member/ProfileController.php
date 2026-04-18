@@ -22,12 +22,20 @@ class ProfileController extends Controller
             'name'     => 'required|string|max:255',
             'phone'    => 'nullable|string|max:20',
             'password' => 'nullable|min:8|confirmed',
+            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($data['password']) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
         $user->update($data);

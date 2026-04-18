@@ -22,7 +22,7 @@
 <div class="grid-courses">
     @foreach ($enrollmentsWithProgress as $item)
     @php $product = $item['product']; @endphp
-    <div class="course-card">
+    <a href="{{ route('member.products.show', $product->slug) }}" class="course-card enrolled">
         @if ($product->thumbnail)
             <img src="{{ $product->thumbnail_url }}" alt="{{ $product->title }}" class="course-thumb">
         @else
@@ -30,27 +30,35 @@
         @endif
         <div class="course-body">
             <div class="flex items-center gap-2 mb-2">
-                <span class="badge badge-purple">{{ $product->getTypeLabel() }}</span>
+                <span class="badge badge-purple" style="box-shadow: 0 2px 5px rgba(0,0,0,0.5);">{{ $product->getTypeLabel() }}</span>
                 @if ($item['percentage'] === 100)
-                    <span class="badge badge-green"><i class="bi bi-check2"></i> Concluído</span>
+                    <span class="badge badge-green" style="box-shadow: 0 2px 5px rgba(0,0,0,0.5);"><i class="bi bi-check2"></i> Concluído</span>
                 @endif
             </div>
             <h3 class="course-title">{{ $product->title }}</h3>
-            <p class="course-desc">{{ $product->description }}</p>
-
-            <div class="progress-wrap">
+            
+            @if($item['total_lessons'] > 0)
+            <div class="progress-wrap" style="background: rgba(255,255,255,0.2);">
                 <div class="progress-bar" style="width: {{ $item['percentage'] }}%"></div>
             </div>
-            <div class="progress-text">{{ $item['completed_lessons'] }}/{{ $item['total_lessons'] }} aulas · {{ $item['percentage'] }}%</div>
+            <div class="flex justify-between items-center mt-1 mb-3">
+                <span class="progress-text text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">{{ $item['completed_lessons'] }}/{{ $item['total_lessons'] }} aulas</span>
+                <span class="progress-text font-bold text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">{{ $item['percentage'] }}%</span>
+            </div>
+            @endif
 
-            <div class="course-footer mt-4">
-                <a href="{{ route('member.products.show', $product->slug) }}" class="btn btn-primary">
-                    {{ $item['percentage'] > 0 ? 'Continuar' : 'Começar' }}
-                </a>
-                <span class="text-xs text-muted">{{ $item['total_lessons'] }} aulas</span>
+            <div class="course-footer">
+                <span class="btn btn-primary w-full">
+                    @if($product->type === 'course')
+                        <i class="bi {{ $item['percentage'] > 0 ? 'bi-play-circle-fill' : 'bi-play-fill' }}"></i> 
+                        {{ $item['percentage'] > 0 ? 'Continuar' : 'Começar' }}
+                    @else
+                        <i class="bi bi-cloud-arrow-down-fill"></i> Acessar
+                    @endif
+                </span>
             </div>
         </div>
-    </div>
+    </a>
     @endforeach
 </div>
 @endif

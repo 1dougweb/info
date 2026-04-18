@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — MembersArea</title>
-    <meta name="description" content="Acesse a plataforma MembersArea">
+    <title>Recuperar Senha — MembersArea</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <script defer src="{{ asset('js/app.js') }}"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     @include('layouts.partials.branding')
 </head>
 <body>
@@ -18,11 +15,18 @@
             @if ($logo = \App\Models\Setting::get('branding_logo'))
                 <img src="{{ asset($logo) }}" alt="Logo" style="height: 64px; max-width: 200px; object-fit: contain; margin: 0 auto 24px;">
             @else
-                <div class="auth-logo-icon"><i class="bi bi-lightning-fill"></i></div>
+                <div class="auth-logo-icon"><i class="bi bi-key-fill"></i></div>
             @endif
-            <h1 class="auth-title">Bem-vindo de volta</h1>
-            <p class="auth-sub">Acesse sua área de membros</p>
+            <h1 class="auth-title">Recuperar Senha</h1>
+            <p class="auth-sub">Digite seu e-mail para receber o código</p>
         </div>
+
+        @if (session('status'))
+            <div class="alert alert-success mb-4">
+                <i class="bi bi-check2-circle"></i>
+                <div>{{ session('status') }}</div>
+            </div>
+        @endif
 
         @if ($errors->any())
         <div class="alert alert-error mb-4">
@@ -31,38 +35,22 @@
         </div>
         @endif
 
-        <form method="POST" action="/login" class="auth-form">
+        <form method="POST" action="{{ route('password.email') }}" class="auth-form">
             @csrf
             <div class="form-group">
                 <label class="form-label">E-mail</label>
                 <input type="email" name="email" class="form-control" placeholder="seu@email.com" value="{{ old('email') }}" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Senha</label>
-                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <label class="form-check" style="gap: 12px;">
-                    <div class="switch">
-                        <input type="checkbox" name="remember" id="remember">
-                        <span class="slider"></span>
-                    </div>
-                    <span class="text-sm font-semibold">Lembrar de mim</span>
-                </label>
-                <a href="{{ route('password.request') }}" class="text-sm text-primary">Esqueceu a senha?</a>
-            </div>
-
             <button type="submit" class="btn btn-primary btn-block btn-lg">
-                Entrar na plataforma
+                Enviar código de acesso
             </button>
         </form>
 
         <div class="auth-divider"><span>ou</span></div>
 
         <p class="text-center text-sm text-muted">
-            Não tem conta? <a href="/register">Criar conta</a>
+            Lembrou a senha? <a href="/login">Voltar ao login</a>
         </p>
     </div>
 </div>

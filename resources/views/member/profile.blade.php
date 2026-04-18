@@ -8,7 +8,7 @@
 </div>
 
 <div class="card" style="max-width: 560px;">
-    <form method="POST" action="{{ route('member.profile.update') }}">
+    <form method="POST" action="{{ route('member.profile.update') }}" enctype="multipart/form-data">
         @csrf @method('PUT')
         <div class="card-body" style="display: flex; flex-direction: column; gap: 20px;">
 
@@ -22,13 +22,23 @@
             @endif
 
             <div class="flex items-center gap-4 mb-4">
-                <div class="sidebar-user-avatar" style="width:64px; height:64px; font-size:1.5rem;">
-                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                <div class="sidebar-user-avatar" style="width:64px; height:64px; font-size:1.5rem; overflow:hidden;">
+                    @if($user->avatar)
+                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" style="width:100%; height:100%; object-fit:cover;">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
                 </div>
-                <div>
+                <div class="flex-1">
                     <div class="font-semibold">{{ $user->name }}</div>
                     <div class="text-muted text-sm">{{ $user->email }}</div>
-                    <span class="badge badge-blue mt-1">{{ $user->role === 'admin' ? 'Administrador' : 'Membro' }}</span>
+                    <div class="mt-2">
+                        <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                            <i class="bi bi-camera-fill me-1"></i> Alterar Foto
+                            <input type="file" name="avatar" accept="image/*" class="hidden" onchange="this.parentElement.querySelector('span').innerText = 'Foto selecionada'">
+                            <span class="ms-1" style="font-size: 0.75rem; font-weight: normal;"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
 

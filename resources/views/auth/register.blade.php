@@ -8,12 +8,17 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="{{ asset('js/app.js') }}"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    @include('layouts.partials.branding')
 </head>
 <body>
 <div class="auth-page">
     <div class="auth-card">
         <div class="auth-logo">
-            <div class="auth-logo-icon"><i class="bi bi-lightning-fill"></i></div>
+            @if ($logo = \App\Models\Setting::get('branding_logo'))
+                <img src="{{ asset($logo) }}" alt="Logo" style="height: 64px; max-width: 200px; object-fit: contain; margin: 0 auto 24px;">
+            @else
+                <div class="auth-logo-icon"><i class="bi bi-lightning-fill"></i></div>
+            @endif
             <h1 class="auth-title">Criar conta</h1>
             <p class="auth-sub">Junte-se à plataforma MembersArea</p>
         </div>

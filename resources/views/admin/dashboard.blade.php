@@ -28,14 +28,14 @@
         <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
         <div>
             <div class="stat-value">{{ $stats['total_enrollments'] }}</div>
-            <div class="stat-label">Matrículas ativas</div>
+            <div class="stat-label">Matrículas</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon"><i class="bi bi-link-45deg"></i></div>
         <div>
             <div class="stat-value">{{ $stats['webhook_events'] }}</div>
-            <div class="stat-label">Eventos webhook</div>
+            <div class="stat-label">Eventos</div>
         </div>
     </div>
 </div>

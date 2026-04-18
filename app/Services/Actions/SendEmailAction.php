@@ -61,7 +61,9 @@ class SendEmailAction
                 return;
             }
 
-            Mail::html($body, function ($message) use ($to, $subject) {
+            $htmlContent = view('layouts.emails.branded', ['content' => $body])->render();
+
+            Mail::html($htmlContent, function ($message) use ($to, $subject) {
                 $message->to($to)->subject($subject);
             });
 
