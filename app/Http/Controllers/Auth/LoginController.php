@@ -25,7 +25,14 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(Auth::user()->isAdmin() ? '/admin' : '/dashboard');
+            
+            $user = Auth::user();
+
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+            
+            return redirect()->route('member.dashboard');
         }
 
         return back()->withErrors(['email' => 'Credenciais inválidas.'])->withInput();

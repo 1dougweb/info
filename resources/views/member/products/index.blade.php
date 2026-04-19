@@ -36,6 +36,13 @@
                 @endif
             </div>
             <h3 class="course-title">{{ $product->title }}</h3>
+            @if (!$product->is_enrolled)
+                <div class="mb-2">
+                    <span class="font-bold text-lg" style="color: var(--primary); text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                        R$ {{ number_format($product->price, 2, ',', '.') }}
+                    </span>
+                </div>
+            @endif
             <p class="course-desc">{{ $product->description }}</p>
             <div class="course-footer">
                 @if ($product->is_enrolled)
@@ -45,8 +52,7 @@
                         <span class="btn btn-primary"><i class="bi bi-cloud-arrow-down-fill"></i> Acessar</span>
                     @endif
                 @else
-                    <span class="btn btn-primary"><i class="bi bi-cart-fill"></i> Comprar</span>
-                    <span class="font-semibold text-lg" style="color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">R$ {{ number_format($product->price, 2, ',', '.') }}</span>
+                    <span class="btn btn-primary w-full justify-center"><i class="bi bi-cart-fill"></i> Adquirir agora</span>
                 @endif
             </div>
         </div>

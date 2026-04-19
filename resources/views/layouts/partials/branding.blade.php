@@ -47,12 +47,25 @@
     
     // Neutral Deep Black Palette (Professional & High Contrast)
     $p_rgb = $hexToRgb($hex);
-    $bg = "#050505";
-    $s1 = "#0a0a0a";
-    $s2 = "#0f0f0f";
-    $s3 = "#141414";
-    $border = "rgba(255, 255, 255, 0.08)";
-    $border_soft = "rgba(255, 255, 255, 0.04)";
+    // Dynamic Background & Surfaces
+    $bg_custom = \App\Models\Setting::get('branding_bg_color');
+    $bg = $bg_custom ?: "#020202"; // Deep Coal Black
+    
+    // Sophisticated Dark Shades
+    $s1 = $bg_custom ? 'rgba(255,255,255,0.02)' : "#080808"; 
+    $s2 = $bg_custom ? 'rgba(255,255,255,0.04)' : "#0c0c0c";
+    $s3 = $bg_custom ? 'rgba(255,255,255,0.06)' : "#111111";
+    
+    // If it's the professional black theme, use the hex values for maximum depth
+    if(!$bg_custom) {
+        $bg = "#030303"; // Richer black
+        $s1 = "#080808"; // Layer 1
+        $s2 = "#0e0e0e"; // Layer 2
+        $s3 = "#141414"; // Layer 3
+    }
+
+    $border = "rgba(255, 255, 255, 0.05)";
+    $border_soft = "rgba(255, 255, 255, 0.03)";
     
     $favicon = \App\Models\Setting::get('branding_favicon');
     $btnTextColor = \App\Models\Setting::get('branding_btn_text_color', '#ffffff');
@@ -139,9 +152,16 @@ body { background-color: var(--bg) !important; color: var(--text-1); }
 }
 
 .auth-page {
-    background: radial-gradient(circle at top right, var(--primary-faint), transparent),
-                radial-gradient(circle at bottom left, var(--primary-faint), transparent),
-                var(--bg);
+    background: radial-gradient(circle at center, #0a0a0a 0%, var(--bg) 100%);
+    position: relative;
+}
+.auth-page::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, var(--primary-faint), transparent 40%),
+                radial-gradient(circle at bottom left, var(--primary-faint), transparent 40%);
+    pointer-events: none;
 }
 
 .sidebar-brand, .sidebar-footer { border-color: var(--border) !important; }
